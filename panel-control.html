@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Centro de Comando - Blood Strike Admin</title>
+    <title>Panel de Administración - Blood Strike Tournament</title>
     <style>
         :root {
             --bg-base: #07090e;
@@ -12,6 +12,7 @@
             --accent-pink: #ff0055;
             --accent-cyan: #00f2ff;
             --accent-green: #00ff66;
+            --accent-yellow: #ffcc00;
             --text-main: #ffffff;
             --text-muted: #8b9bb4;
         }
@@ -21,183 +22,166 @@
         body { 
             background: radial-gradient(circle at top, #141b2d 0%, var(--bg-base) 100%); 
             color: var(--text-main); 
-            padding: 30px 15px; 
             min-height: 100vh;
+            padding-bottom: 60px;
         }
 
-        .wrapper { max-width: 800px; margin: auto; }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid var(--accent-pink);
-            padding-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(255, 0, 85, 0.15);
-        }
-
-        h1 { 
-            font-size: 2.2rem; 
-            background: linear-gradient(90deg, var(--accent-pink), var(--accent-cyan));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        /* Barra de Estado del Sistema */
-        .status-bar {
+        header { 
+            background: linear-gradient(180deg, #151b2c 0%, rgba(7,9,14,0.9) 100%); 
+            padding: 25px 20px; 
+            border-bottom: 3px solid var(--accent-cyan); 
+            box-shadow: 0 10px 40px rgba(0, 242, 255, 0.2);
             display: flex;
             justify-content: space-between;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            padding: 12px 20px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            font-size: 0.85rem;
-            backdrop-filter: blur(10px);
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto 30px auto;
+            border-radius: 0 0 16px 16px;
+        }
+        h1 { 
+            font-size: 1.8rem; 
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            font-weight: 900;
         }
 
-        .status-item { display: flex; align-items: center; gap: 8px; font-weight: 600; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; background: #ff3333; box-shadow: 0 0 8px currentColor; }
-        .dot.online { background: var(--accent-green); color: var(--accent-green); }
-        .dot.offline { background: var(--accent-pink); color: var(--accent-pink); }
-
-        /* Tarjetas de Sección */
-        .box { 
-            background: var(--bg-card); 
-            border: 1px solid var(--border-color); 
-            padding: 25px; 
-            border-radius: 14px; 
-            margin-bottom: 25px; 
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
-            transition: border-color 0.3s;
+        /* Indicador de Estado DB */
+        .db-status {
+            display: flex; align-items: center; gap: 8px;
+            background: #07090e; padding: 8px 14px; border-radius: 20px;
+            border: 1px solid var(--border-color); font-size: 0.85rem; font-weight: 700;
         }
-        .box:hover { border-color: rgba(0, 242, 255, 0.4); }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-yellow); box-shadow: 0 0 8px var(--accent-yellow); }
+        .dot.connected { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
 
-        h3 { color: var(--accent-cyan); margin-bottom: 15px; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
-        
-        label { font-size: 0.85rem; color: var(--text-muted); display: block; margin-top: 12px; font-weight: 500; }
-        
-        input[type="text"] { 
-            width: 100%; 
-            padding: 12px 15px; 
-            margin-top: 6px; 
-            background: #0d111a; 
-            color: var(--text-main); 
-            border: 1px solid var(--border-color); 
-            border-radius: 8px; 
-            font-size: 0.95rem;
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+
+        .section-box { 
+            background: var(--bg-card); backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color); border-radius: 16px; 
+            padding: 25px; margin-bottom: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); 
+        }
+        h2 { 
+            color: var(--accent-cyan); margin-bottom: 20px; text-transform: uppercase; 
+            font-size: 1.2rem; letter-spacing: 1px; font-weight: 800; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;
+        }
+
+        .form-group { margin-bottom: 18px; }
+        label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+        input[type="text"] {
+            width: 100%; background: #07090e; border: 1px solid var(--border-color);
+            padding: 12px 15px; border-radius: 8px; color: var(--text-main); font-size: 0.95rem;
             transition: all 0.3s;
         }
-        input[type="text"]:focus { border-color: var(--accent-cyan); outline: none; box-shadow: 0 0 10px rgba(0,242,255,0.2); }
+        input[type="text"]:focus { outline: none; border-color: var(--accent-cyan); box-shadow: 0 0 10px rgba(0,242,255,0.2); }
 
-        /* Botones Pro */
-        .btn { 
-            background: linear-gradient(135deg, var(--accent-cyan), #0088ff); 
-            color: #000; 
-            border: none; 
-            padding: 14px 20px; 
-            cursor: pointer; 
-            font-weight: 800; 
-            width: 100%; 
-            margin-top: 18px; 
-            border-radius: 8px; 
-            text-transform: uppercase; 
-            letter-spacing: 1px;
-            transition: all 0.2s;
-            box-shadow: 0 4px 15px rgba(0,242,255,0.3);
+        .btn-panel {
+            background: linear-gradient(135deg, var(--accent-cyan), #0088ff);
+            color: #000; border: none; padding: 12px 20px; font-weight: 900;
+            border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.9rem;
+            letter-spacing: 1px; transition: all 0.2s; box-shadow: 0 4px 15px rgba(0,242,255,0.3);
         }
-        .btn:hover { filter: brightness(1.15); transform: translateY(-2px); }
-        
-        .btn-danger { background: linear-gradient(135deg, var(--accent-pink), #cc003f); color: #fff; box-shadow: 0 4px 15px rgba(255,0,85,0.3); }
-        .btn-success { background: linear-gradient(135deg, var(--accent-green), #00b347); color: #000; box-shadow: 0 4px 15px rgba(0,255,102,0.3); }
-        .btn-warning { background: linear-gradient(135deg, #ffaa00, #cc8800); color: #000; box-shadow: 0 4px 15px rgba(255,170,0,0.3); }
+        .btn-panel:hover { filter: brightness(1.1); transform: translateY(-2px); }
 
-        .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
-        
-        .badge-status { 
-            display: inline-block; 
-            padding: 6px 14px; 
-            border-radius: 6px; 
-            font-size: 0.85rem; 
-            font-weight: 800; 
-            letter-spacing: 1px;
-            text-transform: uppercase;
+        .btn-danger {
+            background: linear-gradient(135deg, var(--accent-pink), #cc0043);
+            color: #fff; box-shadow: 0 4px 15px rgba(255,0,85,0.3);
         }
-        .bg-open { background: var(--accent-green); color: #000; box-shadow: 0 0 10px rgba(0,255,102,0.4); }
-        .bg-closed { background: var(--accent-pink); color: #fff; box-shadow: 0 0 10px rgba(255,0,85,0.4); }
 
-        .divider { border: 0; border-top: 1px solid var(--border-color); margin: 25px 0; }
+        .grid-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+        /* Estilo Hoja de Cálculo / Tabla Analítica */
+        .spreadsheet-table {
+            width: 100%; border-collapse: collapse; margin-top: 15px; background: #07090e;
+            border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);
+        }
+        .spreadsheet-table th, .spreadsheet-table td {
+            padding: 12px 15px; text-align: left; font-size: 0.85rem; border-bottom: 1px solid var(--border-color);
+        }
+        .spreadsheet-table th { background: #121622; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 1px; }
+        .spreadsheet-table td { color: var(--text-main); }
+        .spreadsheet-table tr:last-child td { border-bottom: none; }
     </style>
 </head>
 <body>
 
-    <div class="wrapper">
-        <header>
-            <h1>⚡ Panel de Control Master ⚡</h1>
-            <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 5px;">Blood Strike Tournament Management</p>
-        </header>
+    <header>
+        <h1>⚡ Admin Panel ⚡</h1>
+        <div class="db-status">
+            <div class="dot" id="db-dot"></div>
+            <span id="db-text">Base de Datos: Conectando...</span>
+        </div>
+    </header>
 
-        <!-- INDICADORES DE CONEXIÓN -->
-        <div class="status-bar">
-            <div class="status-item">
-                <span class="dot" id="dot-net"></span> Red / Web: <span id="text-net" style="color:var(--text-muted);">Comprobando...</span>
+    <div class="container">
+        <!-- Control de Transmisión y Reseteo Live -->
+        <div class="section-box">
+            <h2>📺 Gestión de Transmisión en Vivo</h2>
+            <div class="form-group">
+                <label>Enlace Embed de TikTok (o YouTube)</label>
+                <input type="text" id="input-live" placeholder="Ej: https://www.tiktok.com/embed/v2/...">
             </div>
-            <div class="status-item">
-                <span class="dot" id="dot-db"></span> Base de Datos: <span id="text-db" style="color:var(--text-muted);">Conectando...</span>
+            <div class="grid-actions">
+                <button class="btn-panel" onclick="guardarLive()">Guardar Transmisión</button>
+                <button class="btn-panel btn-danger" onclick="resetearLive()">🔄 Resetear Todo el Live (Likes/Compartidos)</button>
             </div>
         </div>
 
-        <!-- BOTÓN DE AUTO-INICIALIZACIÓN -->
-        <div class="box" style="border-color: var(--accent-cyan); text-align: center;">
-            <h3>🛠️ Configuración Inicial Automática</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Si la base de datos está vacía o faltan tablas, haz clic aquí para desplegar toda la estructura por defecto al instante.</p>
-            <button class="btn" style="margin-top: 0;" onclick="inicializarBaseDatos()">⚡ Crear / Reparar Estructura en Firebase</button>
-        </div>
-
-        <!-- 1. TRANSMISIÓN EN VIVO -->
-        <div class="box">
-            <h3>🔴 1. Transmisión en Vivo (TikTok Live)</h3>
-            <label>URL Embed del Live (Déjalo vacío para ocultarlo automáticamente en la web):</label>
-            <input type="text" id="link-live" placeholder="https://www.tiktok.com/embed/v2/live/...">
-            <button class="btn" onclick="guardarConfig('live', document.getElementById('link-live').value, '¡Enlace de transmisión actualizado!')">💾 Guardar Enlace de Transmisión</button>
-        </div>
-
-        <!-- 2. CLIPS DE VOTACIÓN -->
-        <div class="box">
-            <h3>🎬 2. Configuración de los 4 Clips</h3>
-            <label>Enlace Embed Clip 1:</label>
-            <input type="text" id="link-clip1" placeholder="URL Embed Clip 1">
-            
-            <label>Enlace Embed Clip 2:</label>
-            <input type="text" id="link-clip2" placeholder="URL Embed Clip 2">
-            
-            <label>Enlace Embed Clip 3:</label>
-            <input type="text" id="link-clip3" placeholder="URL Embed Clip 3">
-            
-            <label>Enlace Embed Clip 4:</label>
-            <input type="text" id="link-clip4" placeholder="URL Embed Clip 4">
-            
-            <button class="btn" onclick="guardarClips()">💾 Guardar Cambios de los 4 Clips</button>
-        </div>
-
-        <!-- 3. CONTROL DE VOTACIONES -->
-        <div class="box">
-            <h3>⚙️ 3. Control de Votaciones y Evento</h3>
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-                <span style="font-size: 0.95rem; font-weight: 600;">Estado en vivo:</span>
-                <span id="estado-actual" class="badge-status bg-closed">Cargando...</span>
+        <!-- Gestión de Clips -->
+        <div class="section-box">
+            <h2>🎬 Gestión de Enlaces de los Clips</h2>
+            <div class="form-group">
+                <label>Enlace Clip 1</label>
+                <input type="text" id="input-clip1" placeholder="URL Clip 1">
             </div>
-            
-            <div class="grid-buttons">
-                <button class="btn btn-success" style="margin-top:0;" onclick="cambiarEstadoVotacion(true)">🔓 ABRIR Votaciones</button>
-                <button class="btn btn-danger" style="margin-top:0;" onclick="cambiarEstadoVotacion(false)">🔒 CERRAR Votaciones</button>
+            <div class="form-group">
+                <label>Enlace Clip 2</label>
+                <input type="text" id="input-clip2" placeholder="URL Clip 2">
             </div>
-            
-            <hr class="divider">
-            
-            <button class="btn btn-warning" onclick="reiniciarVotos()">🔄 Reiniciar Contador de Votos (0)</button>
+            <div class="form-group">
+                <label>Enlace Clip 3</label>
+                <input type="text" id="input-clip3" placeholder="URL Clip 3">
+            </div>
+            <div class="form-group">
+                <label>Enlace Clip 4</label>
+                <input type="text" id="input-clip4" placeholder="URL Clip 4">
+            </div>
+            <button class="btn-panel" onclick="guardarClips()">Guardar Clips</button>
+        </div>
+
+        <!-- Control de Votaciones -->
+        <div class="section-box">
+            <h2>🔒 Estado de las Votaciones</h2>
+            <div style="display: flex; gap: 15px;">
+                <button class="btn-panel" style="flex:1; background:linear-gradient(135deg, var(--accent-green), #00aa44); color:#000;" onclick="cambiarEstadoVotacion(true)">Abrir Votaciones</button>
+                <button class="btn-panel btn-danger" style="flex:1;" onclick="cambiarEstadoVotacion(false)">Cerrar Votaciones (Mostrar Ranking)</button>
+            </div>
+        </div>
+
+        <!-- Hoja de Cálculo / Analíticas en Tiempo Real -->
+        <div class="section-box">
+            <h2>📊 Hoja de Cálculo de Datos y Analíticas</h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Recopilación automática de la actividad actual del torneo:</p>
+            <table class="spreadsheet-table">
+                <thead>
+                    <tr>
+                        <th>Métrica / Ítem</th>
+                        <th>Valor Actual</th>
+                        <th>Detalle / Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="spreadsheet-body">
+                    <tr><td>Likes en Directo</td><td id="stat-likes">0</td><td>Sincronizado</td></tr>
+                    <tr><td>Compartidos</td><td id="stat-shares">0</td><td>Sincronizado</td></tr>
+                    <tr><td>Votos Clip 1</td><td id="stat-votos1">0 votos</td><td id="porc-votos1">0%</td></tr>
+                    <tr><td>Votos Clip 2</td><td id="stat-votos2">0 votos</td><td id="porc-votos2">0%</td></tr>
+                    <tr><td>Votos Clip 3</td><td id="stat-votos3">0 votos</td><td id="porc-votos3">0%</td></tr>
+                    <tr><td>Votos Clip 4</td><td id="stat-votos4">0 votos</td><td id="porc-votos4">0%</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -205,7 +189,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
         import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
-        // PEGA AQUÍ TU CONFIGURACIÓN DE FIREBASE
+        // PEGA AQUÍ TU CONFIGURACIÓN DE FIREBASE (La misma que en index.html)
         const firebaseConfig = {
             apiKey: "TU_API_KEY",
             authDomain: "TU_PROJECT.firebaseapp.com",
@@ -219,117 +203,83 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Control de Acceso por Contraseña
-        const pass = prompt("🔑 Ingresa la clave de seguridad del Panel Admin:");
-        if (pass !== "admin123") { 
-            document.body.innerHTML = "<div style='display:flex;justify-content:center;align-items:center;height:100vh;background:#000;'><h1 style='color:#ff0055;font-family:sans-serif;'>ACCESO DENEGADO</h1></div>";
-        }
-
-        // Monitoreo de Red Global
-        function actualizarRed() {
-            const dotNet = document.getElementById('dot-net');
-            const textNet = document.getElementById('text-net');
-            if (navigator.onLine) {
-                dotNet.className = "dot online";
-                textNet.innerText = "Conectado a Internet";
-                textNet.style.color = "var(--accent-green)";
+        // Comprobar Conexión Activa con Firebase
+        const connectedRef = ref(db, ".info/connected");
+        onValue(connectedRef, (snap) => {
+            const dot = document.getElementById('db-dot');
+            const text = document.getElementById('db-text');
+            if (snap.val() === true) {
+                dot.classList.add('connected');
+                text.innerText = "Base de Datos: Conectado";
             } else {
-                dotNet.className = "dot offline";
-                textNet.innerText = "Sin Conexión";
-                textNet.style.color = "var(--accent-pink)";
+                dot.classList.remove('connected');
+                text.innerText = "Base de Datos: Desconectado / Reconectando...";
             }
-        }
-        window.addEventListener('online', actualizarRed);
-        window.addEventListener('offline', actualizarRed);
-        actualizarRed();
-
-        // Monitoreo y Escucha en Tiempo Real de Firebase
-        const dbRefConfig = ref(db, 'config');
-        onValue(dbRefConfig, (snapshot) => {
-            const dotDb = document.getElementById('dot-db');
-            const textDb = document.getElementById('text-db');
-            const badge = document.getElementById('estado-actual');
-
-            dotDb.className = "dot online";
-            textDb.innerText = "Conectado a Firebase";
-            textDb.style.color = "var(--accent-green)";
-
-            if (!snapshot.exists()) {
-                badge.innerText = "SIN CONFIGURACIÓN";
-                badge.className = "badge-status bg-closed";
-                return;
-            }
-
-            const config = snapshot.val() || {};
-            if (config.live !== undefined) document.getElementById('link-live').value = config.live;
-            if (config.clip1 !== undefined) document.getElementById('link-clip1').value = config.clip1;
-            if (config.clip2 !== undefined) document.getElementById('link-clip2').value = config.clip2;
-            if (config.clip3 !== undefined) document.getElementById('link-clip3').value = config.clip3;
-            if (config.clip4 !== undefined) document.getElementById('link-clip4').value = config.clip4;
-
-            if (config.votacion_activa) {
-                badge.innerText = "ABIERTAS";
-                badge.className = "badge-status bg-open";
-            } else {
-                badge.innerText = "CERRADAS";
-                badge.className = "badge-status bg-closed";
-            }
-        }, (error) => {
-            const dotDb = document.getElementById('dot-db');
-            const textDb = document.getElementById('text-db');
-            dotDb.className = "dot offline";
-            textDb.innerText = "Error de Conexión DB";
-            textDb.style.color = "var(--accent-pink)";
         });
 
-        // Funciones de Guardado Automático y Acciones
-        window.inicializarBaseDatos = function() {
-            Promise.all([
-                set(ref(db, 'config'), {
-                    votacion_activa: false,
-                    live: "",
-                    clip1: "",
-                    clip2: "",
-                    clip3: "",
-                    clip4: ""
-                }),
-                set(ref(db, 'votos'), {
-                    clip1: 0,
-                    clip2: 0,
-                    clip3: 0,
-                    clip4: 0
-                })
-            ]).then(() => {
-                alert("✨ ¡Estructura creada y reparada con éxito en Firebase!");
-            }).catch(err => {
-                alert("❌ Error al inicializar: " + err.message);
+        // Cargar datos actuales en los inputs
+        onValue(ref(db, 'config'), (snapshot) => {
+            const config = snapshot.val() || {};
+            if(config.live) document.getElementById('input-live').value = config.live;
+            for(let i=1; i<=4; i++) {
+                if(config[`clip${i}`]) document.getElementById(`input-clip{i}`).value = config[`clip${i}`] || '';
+                // Corregido input ID
+                const inputClip = document.getElementById(`input-clip${i}`);
+                if(inputClip && config[`clip${i}`]) inputClip.value = config[`clip${i}`];
+            }
+        });
+
+        // Escargar Estadísticas y Votos para la Hoja de Cálculo
+        onValue(ref(db, 'estadisticas'), (snapshot) => {
+            const stats = snapshot.val() || { likes: 0, compartidos: 0 };
+            document.getElementById('stat-likes').innerText = stats.likes || 0;
+            document.getElementById('stat-shares').innerText = stats.compartidos || 0;
+        });
+
+        onValue(ref(db, 'votos'), (snapshot) => {
+            const data = snapshot.val() || { clip1: 0, clip2: 0, clip3: 0, clip4: 0 };
+            const total = (data.clip1||0) + (data.clip2||0) + (data.clip3||0) + (data.clip4||0);
+
+            ['clip1', 'clip2', 'clip3', 'clip4'].forEach((clip, index) => {
+                const num = index + 1;
+                const votos = data[clip] || 0;
+                const porcentaje = total > 0 ? Math.round((votos / total) * 100) : 0;
+                document.getElementById(`stat-votos${num}`).innerText = `${votos} votos`;
+                document.getElementById(`porc-votos${num}`).innerText = `${porcentaje}%`;
+            });
+        });
+
+        // Funciones de Guardado
+        window.guardarLive = function() {
+            const url = document.getElementById('input-live').value;
+            update(ref(db, 'config'), { live: url }).then(() => {
+                alert("✅ Transmisión actualizada con éxito.");
             });
         };
 
-        window.guardarConfig = function(key, value, mensajeExito) {
-            update(ref(db, 'config'), { [key]: value })
-                .then(() => alert(mensajeExito));
+        window.resetearLive = function() {
+            if(confirm("⚠️ ¿Estás seguro de resetear los likes, compartidos y el enlace del live para un nuevo día?")) {
+                set(ref(db, 'estadisticas'), { likes: 0, compartidos: 0 });
+                update(ref(db, 'config'), { live: "" });
+                document.getElementById('input-live').value = "";
+                alert("🔄 ¡Live reseteado para el nuevo día!");
+            }
         };
 
         window.guardarClips = function() {
-            update(ref(db, 'config'), {
-                clip1: document.getElementById('link-clip1').value,
-                clip2: document.getElementById('link-clip2').value,
-                clip3: document.getElementById('link-clip3').value,
-                clip4: document.getElementById('link-clip4').value,
-            }).then(() => alert("🎬 ¡Los 4 clips se han actualizado en la página principal!"));
+            const updates = {};
+            for(let i=1; i<=4; i++) {
+                updates[`clip${i}`] = document.getElementById(`input-clip${i}`).value;
+            }
+            update(ref(db, 'config'), updates).then(() => {
+                alert("✅ Enlaces de los clips actualizados con éxito.");
+            });
         };
 
         window.cambiarEstadoVotacion = function(estado) {
-            update(ref(db, 'config'), { votacion_activa: estado })
-                .then(() => alert(estado ? "🔓 ¡Votaciones ABIERTAS al público!" : "🔒 ¡Votaciones CERRADAS!"));
-        };
-
-        window.reiniciarVotos = function() {
-            if(confirm("⚠️ ¿Estás seguro de poner todos los contadores de votos en 0?")) {
-                set(ref(db, 'votos'), { clip1: 0, clip2: 0, clip3: 0, clip4: 0 })
-                    .then(() => alert("🔄 ¡Contadores restablecidos a 0 con éxito!"));
-            }
+            update(ref(db, 'config'), { votacion_activa: estado }).then(() => {
+                alert(estado ? "🟢 ¡Votaciones abiertas!" : "🔒 ¡Votaciones cerradas (Ranking activado)!");
+            });
         };
     </script>
 </body>
