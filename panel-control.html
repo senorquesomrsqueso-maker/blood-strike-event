@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - Staff Blood Strike</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0d0e12; color: #fff; font-family: 'Segoe UI', sans-serif; padding: 20px; max-width: 650px; margin: auto; }
+        h1 { color: #ff004f; text-align: center; margin-bottom: 20px; text-transform: uppercase; font-size: 1.8rem; }
+        .box { background: #151821; border: 1px solid #282c3c; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        h3 { color: #00e5ff; margin-bottom: 12px; font-size: 1.1rem; text-transform: uppercase; }
+        label { font-size: 0.85rem; color: #a0a5b5; display: block; margin-top: 8px; }
+        input[type="text"] { width: 100%; padding: 10px; margin-top: 4px; background: #1c202d; color: #fff; border: 1px solid #333; border-radius: 6px; font-size: 0.9rem; }
+        input[type="text"]:focus { border-color: #00e5ff; outline: none; }
+        button { background: #00e5ff; color: #000; border: none; padding: 12px 20px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 15px; border-radius: 6px; text-transform: uppercase; transition: 0.2s; }
+        button:hover { background: #00b3cc; }
+        .btn-danger { background: #ff004f; color: #fff; }
+        .btn-danger:hover { background: #d60042; }
+        .btn-success { background: #00d636; color: #fff; }
+        .btn-success:hover { background: #00b02c; }
+        .status-badge { display: inline-block; padding: 5px 10px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; }
+        .bg-open { background: #00d636; color: #000; }
+        .bg-closed { background: #ff004f; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <h1>⚙️ Panel de Administración</h1>
+
+    <div class="box">
+        <h3>1. Transmisión en Vivo (TikTok Live)</h3>
+        <label>URL Embed del Live (Si la dejas vacía, se oculta en la web pública):</label>
+        <input type="text" id="link-live" placeholder="https://www.tiktok.com/embed/v2/live/...">
+        <button onclick="guardarEnlaces()">💾 Guardar Cambios de Transmisión</button>
+    </div>
+
+    <div class="box">
+        <h3>2. Configuración de los 4 Clips</h3>
+        <label>Enlace Embed Clip 1:</label>
+        <input type="text" id="link-clip1" placeholder="URL Embed Clip 1">
+        
+        <label>Enlace Embed Clip 2:</label>
+        <input type="text" id="link-clip2" placeholder="URL Embed Clip 2">
+        
+        <label>Enlace Embed Clip 3:</label>
+        <input type="text" id="link-clip3" placeholder="URL Embed Clip 3">
+        
+        <label>Enlace Embed Clip 4:</label>
+        <input type="text" id="link-clip4" placeholder="URL Embed Clip 4">
+        
+        <button onclick="guardarEnlaces()">💾 Guardar Cambios de Clips</button>
+    </div>
+
+    <div class="box">
+        <h3>3. Control de Votaciones</h3>
+        <p style="margin-bottom: 10px; font-size: 0.9rem;">Estado actual: <span id="estado-actual" class="status-badge bg-closed">Cargando...</span></p>
+        
+        <button class="btn-success" onclick="cambiarEstadoVotacion(true)">🔓 ABRIR Votaciones</button>
+        <button class="btn-danger" onclick="cambiarEstadoVotacion(false)">🔒 CERRAR Votaciones</button>
+        
+        <hr style="border: 0; border-top: 1px solid #282c3c; margin: 20px 0;">
+        
+        <button onclick="reiniciarVotos()" style="background:#444; color:#fff;">🔄 Reiniciar Contador de Votos a 0</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+        import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+
+        // PEGA AQUÍ TU CONFIGURACIÓN DE FIREBASE
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_PROJECT.firebaseapp.com",
+            databaseURL: "https://TU_PROJECT-default-rtdb.firebaseio.com",
+            projectId: "TU_PROJECT",
+            storageBucket: "TU_PROJECT.appspot.com",
+            messagingSenderId: "TU_SENDER_ID",
+            appId: "TU_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Contraseña simple de acceso al abrir la página
+        const pass = prompt("Clave de acceso al Panel de Administrador:");
+        if (pass !== "admin123") { 
+            document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:50px;'>Acceso Denegado</h1>"; 
+        }
+
+        // Cargar datos actuales de Firebase en las casillas
+        onValue(ref(db, 'config'), (snapshot) => {
+            const config = snapshot.val() || {};
+            if (config.live) document.getElementById('link-live').value = config.live;
+            if (config.clip1) document.getElementById('link-clip1').value = config.clip1;
+            if (config.clip2) document.getElementById('link-clip2').value = config.clip2;
+            if (config.clip3) document.getElementById('link-clip3').value = config.clip3;
+            if (config.clip4) document.getElementById('link-clip4').value = config.clip4;
+
+            const badge = document.getElementById('estado-actual');
+            if (config.votacion_activa) {
+                badge.innerText = "ABIERTAS";
+                badge.className = "status-badge bg-open";
+            } else {
+                badge.innerText = "CERRADAS";
+                badge.className = "status-badge bg-closed";
+            }
+        });
+
+        // Guardar Enlaces
+        window.guardarEnlaces = function() {
+            update(ref(db, 'config'), {
+                live: document.getElementById('link-live').value,
+                clip1: document.getElementById('link-clip1').value,
+                clip2: document.getElementById('link-clip2').value,
+                clip3: document.getElementById('link-clip3').value,
+                clip4: document.getElementById('link-clip4').value,
+            }).then(() => alert("¡Enlaces actualizados con éxito!"));
+        };
+
+        // Abrir o Cerrar Votación
+        window.cambiarEstadoVotacion = function(estado) {
+            update(ref(db, 'config'), { votacion_activa: estado })
+                .then(() => alert(estado ? "Votaciones ABIERTAS" : "Votaciones CERRADAS"));
+        };
+
+        // Reiniciar Votos
+        window.reiniciarVotos = function() {
+            if(confirm("¿Estás seguro de reiniciar los votos a 0 para un nuevo día/jornada?")) {
+                set(ref(db, 'votos'), { clip1: 0, clip2: 0, clip3: 0, clip4: 0 })
+                    .then(() => alert("Los votos se han reiniciado a 0."));
+            }
+        };
+    </script>
+</body>
+</html>
