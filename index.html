@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torneo Blood Strike</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #0d0e12; color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; padding-bottom: 50px; }
+        header { background: linear-gradient(180deg, #1b1e28, #0d0e12); padding: 30px 15px; border-bottom: 3px solid #ff004f; }
+        h1 { font-size: 2.2rem; color: #ff004f; text-transform: uppercase; }
+        .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
+        .section-box { background: #151821; border: 1px solid #282c3c; border-radius: 12px; padding: 25px; margin-bottom: 35px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+        h2 { color: #00e5ff; margin-bottom: 20px; text-transform: uppercase; }
+        
+        .live-player { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; border: 2px solid #ff004f; background: #000; display: none; }
+        .live-player iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        
+        .grid-clips { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+        .clip-card { background: #1c202d; border-radius: 10px; padding: 15px; border: 1px solid #2d3345; }
+        .tiktok-embed { background: #000; height: 380px; border-radius: 6px; width: 100%; border: none; }
+        .btn-votar { background: #ff004f; color: #fff; border: none; padding: 12px; width: 100%; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 15px; text-transform: uppercase; transition: 0.2s; }
+        .btn-votar:hover { background: #d60042; }
+        .btn-votar:disabled { background: #444; cursor: not-allowed; }
+        .status-cerrado { color: #ff004f; font-weight: bold; margin-top: 10px; display: none; }
+        
+        .bar-container { background: #0a0b0e; height: 14px; border-radius: 7px; margin-top: 10px; overflow: hidden; }
+        .bar-fill { background: linear-gradient(90deg, #00e5ff, #0088ff); height: 100%; width: 0%; transition: width 0.5s; }
+        .stats { display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 5px; color: #cbd1e1; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🎮 TORNEO BLOOD STRIKE 🎮</h1>
+    </header>
+
+    <div class="container">
+        <!-- SECCIÓN EN VIVO -->
+        <div class="section-box" id="seccion-live" style="display:none;">
+            <h2>🔴 TRANSMISIÓN EN VIVO</h2>
+            <div class="live-player" id="live-container">
+                <iframe id="iframe-live" src="" allowfullscreen></iframe>
+            </div>
+        </div>
+
+        <!-- SECCIÓN VOTACIONES -->
+        <div class="section-box">
+            <h2>🔥 VOTACIÓN DE MEJORES CLIPS 🔥</h2>
+            <p id="msg-cerrado" class="status-cerrado">VOTACIONES CERRADAS</p>
+            <div class="grid-clips">
+                <!-- Clip 1 -->
+                <div class="clip-card">
+                    <iframe id="iframe-clip1" class="tiktok-embed" src=""></iframe>
+                    <button class="btn-votar btn-accion" id="btn-1" onclick="votar('clip1')">Votar Clip 1</button>
+                    <div class="bar-container"><div class="bar-fill" id="barra-clip1"></div></div>
+                    <div class="stats"><span id="votos-clip1">0 votos</span><span id="porcentaje-clip1">0%</span></div>
+                </div>
+                <!-- Clip 2 -->
+                <div class="clip-card">
+                    <iframe id="iframe-clip2" class="tiktok-embed" src=""></iframe>
+                    <button class="btn-votar btn-accion" id="btn-2" onclick="votar('clip2')">Votar Clip 2</button>
+                    <div class="bar-container"><div class="bar-fill" id="barra-clip2"></div></div>
+                    <div class="stats"><span id="votos-clip2">0 votos</span><span id="porcentaje-clip2">0%</span></div>
+                </div>
+                <!-- Clip 3 -->
+                <div class="clip-card">
+                    <iframe id="iframe-clip3" class="tiktok-embed" src=""></iframe>
+                    <button class="btn-votar btn-accion" id="btn-3" onclick="votar('clip3')">Votar Clip 3</button>
+                    <div class="bar-container"><div class="bar-fill" id="barra-clip3"></div></div>
+                    <div class="stats"><span id="votos-clip3">0 votos</span><span id="porcentaje-clip3">0%</span></div>
+                </div>
+                <!-- Clip 4 -->
+                <div class="clip-card">
+                    <iframe id="iframe-clip4" class="tiktok-embed" src=""></iframe>
+                    <button class="btn-votar btn-accion" id="btn-4" onclick="votar('clip4')">Votar Clip 4</button>
+                    <div class="bar-container"><div class="bar-fill" id="barra-clip4"></div></div>
+                    <div class="stats"><span id="votos-clip4">0 votos</span><span id="porcentaje-clip4">0%</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+        import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+
+        // PEGA AQUÍ TU FIREBASE CONFIG
+        const firebaseConfig = {
+  apiKey: "AIzaSyAHPsKLBAJCu-N5SVS7mTdVHF-5AAVIGy4",
+  authDomain: "blood-strike-torneo.firebaseapp.com",
+  projectId: "blood-strike-torneo",
+  storageBucket: "blood-strike-torneo.firebasestorage.app",
+  messagingSenderId: "756331439350",
+  appId: "1:756331439350:web:06fbe26b312071d94ef8d7",
+  measurementId: "G-QWJBREPW9S"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Escuchar configuración dinámica
+        onValue(ref(db, 'config'), (snapshot) => {
+            const config = snapshot.val() || {};
+            
+            // Actualizar Enlaces de Videos
+            if(config.live) {
+                document.getElementById('seccion-live').style.display = 'block';
+                document.getElementById('live-container').style.display = 'block';
+                document.getElementById('iframe-live').src = config.live;
+            } else {
+                document.getElementById('seccion-live').style.display = 'none';
+            }
+
+            for(let i=1; i<=4; i++) {
+                if(config[`clip${i}`]) {
+                    document.getElementById(`iframe-clip${i}`).src = config[`clip${i}`];
+                }
+            }
+
+            // Estado de las Votaciones (Abierto / Cerrado)
+            const botones = document.querySelectorAll('.btn-accion');
+            if(config.votacion_activa === false) {
+                botones.forEach(btn => btn.style.display = 'none');
+                document.getElementById('msg-cerrado').style.display = 'block';
+            } else {
+                botones.forEach(btn => btn.style.display = 'block');
+                document.getElementById('msg-cerrado').style.display = 'none';
+                verificarSiVoto(); // Por si ya había votado antes
+            }
+        });
+
+        // Escuchar Votos en tiempo real
+        onValue(ref(db, 'votos'), (snapshot) => {
+            const data = snapshot.val() || { clip1: 0, clip2: 0, clip3: 0, clip4: 0 };
+            const total = (data.clip1||0) + (data.clip2||0) + (data.clip3||0) + (data.clip4||0);
+
+            ['clip1', 'clip2', 'clip3', 'clip4'].forEach(clip => {
+                const votos = data[clip] || 0;
+                const porcentaje = total > 0 ? Math.round((votos / total) * 100) : 0;
+                document.getElementById(`votos-${clip}`).innerText = `${votos} votos`;
+                document.getElementById(`porcentaje-${clip}`).innerText = `${porcentaje}%`;
+                document.getElementById(`barra-${clip}`).style.width = `${porcentaje}%`;
+            });
+        });
+
+        window.votar = function(clipId) {
+            if (localStorage.getItem('yaVoto_torneo')) { alert("¡Ya has votado!"); return; }
+            runTransaction(ref(db, `votos/${clipId}`), (actuales) => (actuales || 0) + 1).then(() => {
+                localStorage.setItem('yaVoto_torneo', 'true');
+                verificarSiVoto();
+            });
+        };
+
+        function verificarSiVoto() {
+            if (localStorage.getItem('yaVoto_torneo')) {
+                document.querySelectorAll('.btn-accion').forEach(btn => {
+                    btn.disabled = true; btn.innerText = "Voto Registrado";
+                });
+            }
+        }
+    </script>
+</body>
+</html>
