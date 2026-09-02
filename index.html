@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Torneo Oficial - Blood Strike Arena</title>
+    <title>Blood Strike Tournament - Comunidad</title>
     <style>
         :root {
             --bg-base: #07090e;
-            --bg-card: rgba(18, 22, 33, 0.85);
+            --bg-card: rgba(18, 22, 33, 0.9);
             --border-color: #232a40;
             --accent-pink: #ff0055;
             --accent-cyan: #00f2ff;
@@ -25,176 +25,229 @@
             padding-bottom: 60px;
         }
 
-        /* Cabecera Épica */
+        /* Cabecera */
         header { 
             background: linear-gradient(180deg, #151b2c 0%, rgba(7,9,14,0.9) 100%); 
-            padding: 30px 20px; 
+            padding: 25px 20px; 
             border-bottom: 3px solid var(--accent-pink); 
             box-shadow: 0 10px 40px rgba(255, 0, 85, 0.25);
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto 30px auto;
+            border-radius: 0 0 16px 16px;
         }
         h1 { 
-            font-size: 2.5rem; 
+            font-size: 2rem; 
             background: linear-gradient(90deg, var(--accent-pink), var(--accent-cyan));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-transform: uppercase; 
-            letter-spacing: 3px; 
+            letter-spacing: 2px; 
             font-weight: 900;
         }
-        .sub-header { color: var(--text-muted); font-size: 1rem; margin-top: 8px; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; }
+        .sub-header { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
 
-        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-
-        /* Contenedores Principales Estilo Glassmorphism */
-        .section-box { 
-            background: var(--bg-card); 
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border-color); 
-            border-radius: 16px; 
-            padding: 30px; 
-            margin-bottom: 40px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6); 
-        }
-        h2 { 
-            color: var(--accent-cyan); 
-            margin-bottom: 25px; 
-            text-transform: uppercase; 
-            font-size: 1.5rem; 
-            letter-spacing: 1.5px; 
-            text-align: center;
-            font-weight: 800;
-        }
-
-        /* Botón Desplegable del Live */
-        .btn-desplegable {
+        /* Botón Abrir Sidebar Transmisión */
+        .btn-open-sidebar {
             background: linear-gradient(135deg, var(--accent-pink), #cc0043);
-            color: white;
+            color: #fff;
             border: none;
-            padding: 16px 24px;
-            width: 100%;
-            font-size: 1.1rem;
+            padding: 12px 20px;
+            font-size: 0.9rem;
             font-weight: 800;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
             text-transform: uppercase;
-            box-shadow: 0 6px 20px rgba(255,0,85,0.4);
+            box-shadow: 0 4px 15px rgba(255,0,85,0.4);
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 12px;
+            gap: 8px;
             letter-spacing: 1px;
         }
-        .btn-desplegable:hover { filter: brightness(1.1); transform: translateY(-2px); }
-        
-        .live-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .live-content.activo {
-            max-height: 700px;
-            margin-top: 25px;
-        }
-        .live-player { 
-            position: relative; 
-            padding-bottom: 56.25%; 
-            height: 0; 
-            overflow: hidden; 
-            border-radius: 12px; 
-            border: 2px solid var(--accent-pink); 
-            background: #000; 
-            box-shadow: 0 0 30px rgba(255,0,85,0.3);
-        }
-        .live-player iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        .btn-open-sidebar:hover { filter: brightness(1.15); transform: translateY(-2px); }
 
-        /* Cuadrícula de Clips (Tarjetas Gamers) */
+        /* Sidebar / Menú Desplegable */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
+            z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.activo { opacity: 1; pointer-events: auto; }
+
+        .sidebar {
+            position: fixed; top: 0; right: -450px; width: 100%; max-width: 450px; height: 100%;
+            background: #0b0f19; border-left: 1px solid var(--border-color);
+            z-index: 1000; box-shadow: -10px 0 40px rgba(0,0,0,0.8);
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column; padding: 25px; overflow-y: auto;
+        }
+        .sidebar.activo { right: 0; }
+        
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+        .sidebar-header h3 { color: var(--accent-cyan); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-close { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
+        .btn-close:hover { color: var(--accent-pink); }
+
+        /* Modo Cine Transmisión */
+        .cinema-screen {
+            background: #000; border-radius: 12px; border: 2px solid var(--border-color);
+            position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden;
+            display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0,0,0,0.9);
+        }
+        .cinema-screen iframe { width: 100%; height: 100%; border: none; }
+        
+        .offline-message {
+            color: var(--text-main); text-transform: uppercase; font-weight: 800; letter-spacing: 1.5px; font-size: 0.95rem; text-align: center; display: flex; flex-direction: column; gap: 10px; padding: 20px;
+        }
+        .offline-message span { font-size: 2.2rem; }
+        .offline-stats-summary {
+            font-size: 0.8rem; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 6px; margin-top: 5px; border: 1px solid var(--border-color);
+        }
+
+        /* Acciones de Directo (Like & Share) */
+        .stream-actions {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px;
+        }
+        .action-btn {
+            background: #151b2c; border: 1px solid var(--border-color); color: var(--text-main);
+            padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem;
+            display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        .action-btn:hover { border-color: var(--accent-cyan); background: #1a2236; }
+        .action-btn.liked { color: var(--accent-pink); border-color: var(--accent-pink); }
+
+        /* Menú Desplegable Compartir */
+        .share-modal {
+            background: #121622; border: 1px solid var(--border-color); border-radius: 10px;
+            padding: 15px; margin-top: 15px; display: none; animation: fadeIn 0.3s ease;
+        }
+        .share-modal.activo { display: block; }
+        .share-option {
+            background: #07090e; border: 1px solid var(--border-color); color: var(--text-main);
+            padding: 10px; border-radius: 6px; width: 100%; text-align: left; font-size: 0.85rem;
+            cursor: pointer; margin-top: 8px; transition: all 0.2s;
+        }
+        .share-option:hover { border-color: var(--accent-cyan); }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* Contenedores Principales */
+        .section-box { 
+            background: var(--bg-card); backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color); border-radius: 16px; 
+            padding: 30px; margin-bottom: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); 
+        }
+        h2 { 
+            color: var(--accent-cyan); margin-bottom: 25px; text-transform: uppercase; 
+            font-size: 1.5rem; letter-spacing: 1.5px; text-align: center; font-weight: 800;
+        }
+
+        /* Cuadrícula de Clips */
         .grid-clips { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; }
         .clip-card { 
-            background: #121622; 
-            border-radius: 14px; 
-            padding: 18px; 
-            border: 1px solid var(--border-color); 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: all 0.3s ease;
+            background: #121622; border-radius: 14px; padding: 18px; 
+            border: 1px solid var(--border-color); box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            display: flex; flex-direction: column; justify-content: space-between;
+            position: relative; transition: all 0.3s ease;
         }
-        .clip-card:hover { border-color: var(--accent-cyan); transform: translateY(-5px); box-shadow: 0 12px 35px rgba(0,242,255,0.2); }
+        .clip-card:hover { border-color: var(--accent-cyan); transform: translateY(-5px); }
         
         .tiktok-embed { background: #000; height: 380px; border-radius: 10px; width: 100%; border: none; }
         
-        /* Botón de Votación */
+        /* Insignias de Ranking (Top 1-4) */
+        .ranking-badge {
+            position: absolute; top: -12px; left: 20px;
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-cyan));
+            color: #000; font-weight: 900; font-size: 0.85rem; padding: 5px 14px;
+            border-radius: 20px; text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: none; z-index: 10;
+        }
+
         .btn-votar { 
             background: linear-gradient(135deg, var(--accent-cyan), #0088ff); 
-            color: #000; 
-            border: none; 
-            padding: 14px; 
-            width: 100%; 
-            font-weight: 900; 
-            border-radius: 10px; 
-            cursor: pointer; 
-            margin-top: 18px; 
-            text-transform: uppercase; 
-            font-size: 1rem;
-            letter-spacing: 1px;
-            box-shadow: 0 5px 15px rgba(0,242,255,0.3);
-            transition: all 0.2s; 
+            color: #000; border: none; padding: 14px; width: 100%; font-weight: 900; 
+            border-radius: 10px; cursor: pointer; margin-top: 18px; text-transform: uppercase; 
+            font-size: 1rem; letter-spacing: 1px; transition: all 0.2s; 
         }
         .btn-votar:hover { filter: brightness(1.15); transform: scale(1.02); }
-        .btn-votar:disabled { background: #1f2638; color: var(--text-muted); cursor: not-allowed; box-shadow: none; transform: none; }
+        .btn-votar:disabled { background: #1f2638; color: var(--text-muted); cursor: not-allowed; transform: none; }
         
         .status-cerrado { 
-            background: rgba(255,0,85,0.15);
-            border: 1px solid var(--accent-pink);
-            color: var(--accent-pink); 
-            font-weight: 800; 
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 25px; 
-            font-size: 1.1rem; 
-            display: none; 
-            text-shadow: 0 0 10px rgba(255,0,85,0.5);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            background: rgba(255,0,85,0.15); border: 1px solid var(--accent-pink);
+            color: var(--accent-pink); font-weight: 800; padding: 15px; border-radius: 10px;
+            margin-bottom: 25px; font-size: 1.05rem; display: none; text-align: center;
+            text-transform: uppercase; letter-spacing: 1px;
         }
         
-        /* Barras de Progreso Avanzadas */
         .bar-container { background: #07090e; height: 14px; border-radius: 7px; margin-top: 15px; overflow: hidden; border: 1px solid var(--border-color); }
-        .bar-fill { background: linear-gradient(90deg, var(--accent-pink), var(--accent-cyan)); height: 100%; width: 0%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px rgba(0,242,255,0.4); }
-        .stats { display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 8px; color: var(--text-muted); font-weight: 700; }
+        .bar-fill { background: linear-gradient(90deg, var(--accent-pink), var(--accent-cyan)); height: 100%; width: 0%; transition: width 0.6s ease; }
+        .stats { display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: 8px; color: var(--text-muted); font-weight: 700; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>⚡ Blood Strike Arena ⚡</h1>
-        <div class="sub-header">Torneo Oficial & Votación de Mejores Clips</div>
+        <div>
+            <h1>Blood Strike Tournament</h1>
+            <div class="sub-header">Torneo Comunitario</div>
+        </div>
+        <button class="btn-open-sidebar" onclick="toggleSidebar(true)">
+            🔴 Ver Transmisión en Vivo
+        </button>
     </header>
 
-    <div class="container">
-        <!-- SECCIÓN EN VIVO DESPLEGABLE -->
-        <div class="section-box" id="seccion-live" style="display:none;">
-            <button class="btn-desplegable" onclick="toggleLive()">
-                🔴 <span id="texto-btn-live">Ver Transmisión en Vivo</span> ▼
-            </button>
-            <div class="live-content" id="live-content-box">
-                <div class="live-player" style="margin-top: 20px;">
-                    <iframe id="iframe-live" src="" allowfullscreen></iframe>
-                </div>
+    <!-- SIDEBAR / MENÚ DESPLEGABLE DE TRANSMISIÓN -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar(false)"></div>
+    <div class="sidebar" id="sidebar-live">
+        <div class="sidebar-header">
+            <h3>🔴 Transmisión en Directo</h3>
+            <button class="btn-close" onclick="toggleSidebar(false)">&times;</button>
+        </div>
+        
+        <!-- Pantalla Modo Cine -->
+        <div class="cinema-screen" id="cinema-screen-container">
+            <div class="offline-message" id="offline-msg">
+                <span>📺</span>
+                Gracias por ver la transmisión
+                <div class="offline-stats-summary" id="offline-summary-text">Transmisión finalizada</div>
             </div>
+            <iframe id="iframe-live" src="" allowfullscreen style="display:none;"></iframe>
         </div>
 
+        <!-- Botones Like & Share -->
+        <div class="stream-actions">
+            <button class="action-btn" id="btn-like" onclick="darLike()">
+                ❤️ <span id="text-likes">0</span> Me gusta
+            </button>
+            <button class="action-btn" onclick="toggleShareMenu()">
+                🔗 Compartir (<span id="text-shares">0</span>)
+            </button>
+        </div>
+
+        <!-- Menú Desplegable Compartir -->
+        <div class="share-modal" id="share-modal">
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600;">SELECCIONA QUÉ COMPARTIR:</p>
+            <button class="share-option" onclick="compartirEnlace('web')">🌐 Copiar Enlace de la Página</button>
+            <button class="share-option" onclick="compartirEnlace('tiktok')">📱 Copiar Enlace de la Transmisión (TikTok)</button>
+        </div>
+    </div>
+
+    <div class="container">
         <!-- SECCIÓN VOTACIONES -->
         <div class="section-box">
-            <h2>🔥 Vota por el Mejor Jugador de la Jornada 🔥</h2>
-            <div id="msg-cerrado" class="status-cerrado">🔒 Las votaciones se encuentran cerradas temporalmente</div>
+            <h2>🔥 Vota por el Mejor Clip 🔥</h2>
+            <div id="msg-cerrado" class="status-cerrado">🔒 Las votaciones se encuentran cerradas. ¡Aquí están los resultados oficiales del ranking!</div>
             
             <div class="grid-clips">
                 <!-- Clip 1 -->
-                <div class="clip-card">
+                <div class="clip-card" id="card-clip1">
+                    <div class="ranking-badge" id="badge-clip1">TOP 1</div>
                     <iframe id="iframe-clip1" class="tiktok-embed" src=""></iframe>
                     <div>
                         <button class="btn-votar btn-accion" id="btn-1" onclick="votar('clip1')">Votar Clip 1</button>
@@ -203,7 +256,8 @@
                     </div>
                 </div>
                 <!-- Clip 2 -->
-                <div class="clip-card">
+                <div class="clip-card" id="card-clip2">
+                    <div class="ranking-badge" id="badge-clip2">TOP 2</div>
                     <iframe id="iframe-clip2" class="tiktok-embed" src=""></iframe>
                     <div>
                         <button class="btn-votar btn-accion" id="btn-2" onclick="votar('clip2')">Votar Clip 2</button>
@@ -212,7 +266,8 @@
                     </div>
                 </div>
                 <!-- Clip 3 -->
-                <div class="clip-card">
+                <div class="clip-card" id="card-clip3">
+                    <div class="ranking-badge" id="badge-clip3">TOP 3</div>
                     <iframe id="iframe-clip3" class="tiktok-embed" src=""></iframe>
                     <div>
                         <button class="btn-votar btn-accion" id="btn-3" onclick="votar('clip3')">Votar Clip 3</button>
@@ -221,7 +276,8 @@
                     </div>
                 </div>
                 <!-- Clip 4 -->
-                <div class="clip-card">
+                <div class="clip-card" id="card-clip4">
+                    <div class="ranking-badge" id="badge-clip4">TOP 4</div>
                     <iframe id="iframe-clip4" class="tiktok-embed" src=""></iframe>
                     <div>
                         <button class="btn-votar btn-accion" id="btn-4" onclick="votar('clip4')">Votar Clip 4</button>
@@ -251,28 +307,75 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Control del botón desplegable del Live
-        window.toggleLive = function() {
-            const box = document.getElementById('live-content-box');
-            box.classList.toggle('activo');
-            const btnText = document.getElementById('texto-btn-live');
-            if(box.classList.contains('activo')) {
-                btnText.innerText = "Ocultar Transmisión en Vivo";
+        let urlLiveGlobal = "";
+
+        // Control Sidebar
+        window.toggleSidebar = function(abrir) {
+            const sidebar = document.getElementById('sidebar-live');
+            const overlay = document.getElementById('sidebar-overlay');
+            if(abrir) {
+                sidebar.classList.add('activo');
+                overlay.classList.add('activo');
             } else {
-                btnText.innerText = "Ver Transmisión en Vivo";
+                sidebar.classList.remove('activo');
+                overlay.classList.remove('activo');
             }
         };
 
-        // Escuchar configuración dinámica desde el panel admin
+        // Menú compartir desplegable
+        window.toggleShareMenu = function() {
+            document.getElementById('share-modal').classList.toggle('activo');
+        };
+
+        // Compartir enlaces y sumar contador
+        window.compartirEnlace = function(tipo) {
+            let textoACopiar = tipo === 'web' ? window.location.href : (urlLiveGlobal || window.location.href);
+            navigator.clipboard.writeText(textoACopiar).then(() => {
+                alert(tipo === 'web' ? "🌐 ¡Enlace de la página copiado al portapapeles!" : "📱 ¡Enlace de TikTok copiado al portapapeles!");
+                toggleShareMenu();
+                runTransaction(ref(db, 'estadisticas/compartidos'), (val) => (val || 0) + 1);
+            });
+        };
+
+        // Sistema de Likes
+        window.darLike = function() {
+            if(localStorage.getItem('yaDioLike')) {
+                alert("❤️ Ya le diste Me Gusta a esta transmisión.");
+                return;
+            }
+            runTransaction(ref(db, 'estadisticas/likes'), (val) => (val || 0) + 1).then(() => {
+                localStorage.setItem('yaDioLike', 'true');
+                document.getElementById('btn-like').classList.add('liked');
+            });
+        };
+
+        // Escuchar Estadísticas (Likes y Shares)
+        onValue(ref(db, 'estadisticas'), (snapshot) => {
+            const stats = snapshot.val() || { likes: 0, compartidos: 0 };
+            const totalLikes = stats.likes || 0;
+            const totalCompartidos = stats.compartidos || 0;
+
+            document.getElementById('text-likes').innerText = totalLikes;
+            document.getElementById('text-shares').innerText = totalCompartidos;
+            document.getElementById('offline-summary-text').innerText = `❤️ ${totalLikes} Likes  |  🔗 ${totalCompartidos} Compartidos`;
+        });
+
+        // Escuchar Configuración Global y Live
         onValue(ref(db, 'config'), (snapshot) => {
             const config = snapshot.val() || {};
+            urlLiveGlobal = config.live || "";
             
+            const iframeLive = document.getElementById('iframe-live');
+            const offlineMsg = document.getElementById('offline-msg');
+
             if(config.live && config.live.trim() !== "") {
-                document.getElementById('seccion-live').style.display = 'block';
-                document.getElementById('iframe-live').src = config.live;
+                iframeLive.src = config.live;
+                iframeLive.style.display = 'block';
+                offlineMsg.style.display = 'none';
             } else {
-                document.getElementById('seccion-live').style.display = 'none';
-                document.getElementById('iframe-live').src = "";
+                iframeLive.src = "";
+                iframeLive.style.display = 'none';
+                offlineMsg.style.display = 'flex';
             }
 
             for(let i=1; i<=4; i++) {
@@ -282,27 +385,49 @@
             }
 
             const botones = document.querySelectorAll('.btn-accion');
+            const msgCerrado = document.getElementById('msg-cerrado');
+
             if(config.votacion_activa === false) {
                 botones.forEach(btn => btn.style.display = 'none');
-                document.getElementById('msg-cerrado').style.display = 'block';
+                msgCerrado.style.display = 'block';
+                document.querySelectorAll('.ranking-badge').forEach(badge => badge.style.display = 'block');
             } else {
                 botones.forEach(btn => btn.style.display = 'block');
-                document.getElementById('msg-cerrado').style.display = 'none';
+                msgCerrado.style.display = 'none';
+                document.querySelectorAll('.ranking-badge').forEach(badge => badge.style.display = 'none');
                 verificarSiVoto();
             }
         });
 
-        // Escuchar Votos en tiempo real
+        // Escuchar Votos, actualizar porcentajes y ordenar ranking visual (Top 1 al 4)
         onValue(ref(db, 'votos'), (snapshot) => {
             const data = snapshot.val() || { clip1: 0, clip2: 0, clip3: 0, clip4: 0 };
             const total = (data.clip1||0) + (data.clip2||0) + (data.clip3||0) + (data.clip4||0);
 
-            ['clip1', 'clip2', 'clip3', 'clip4'].forEach(clip => {
-                const votos = data[clip] || 0;
+            let clipsArray = [
+                { id: 'clip1', votos: data.clip1 || 0 },
+                { id: 'clip2', votos: data.clip2 || 0 },
+                { id: 'clip3', votos: data.clip3 || 0 },
+                { id: 'clip4', votos: data.clip4 || 0 }
+            ];
+
+            // Ordenar de mayor a menor voto para el ranking
+            clipsArray.sort((a, b) => b.votos - a.votos);
+
+            const gridContainer = document.querySelector('.grid-clips');
+            clipsArray.forEach((item, index) => {
+                const card = document.getElementById(`card-${item.id}`);
+                const badge = document.getElementById(`badge-${item.id}`);
+                
+                // Reorganizar posición visual en el Grid según el puesto (Top 1, 2, 3, 4)
+                gridContainer.appendChild(card);
+                badge.innerText = `TOP ${index + 1}`;
+
+                const votos = item.votos;
                 const porcentaje = total > 0 ? Math.round((votos / total) * 100) : 0;
-                document.getElementById(`votos-${clip}`).innerText = `${votos} votos`;
-                document.getElementById(`porcentaje-${clip}`).innerText = `${porcentaje}%`;
-                document.getElementById(`barra-${clip}`).style.width = `${porcentaje}%`;
+                document.getElementById(`votos-${item.id}`).innerText = `${votos} votos`;
+                document.getElementById(`porcentaje-${item.id}`).innerText = `${porcentaje}%`;
+                document.getElementById(`barra-${item.id}`).style.width = `${porcentaje}%`;
             });
         });
 
