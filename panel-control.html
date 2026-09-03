@@ -48,7 +48,6 @@
             font-weight: 900;
         }
 
-        /* Indicador de Estado DB */
         .db-status {
             display: flex; align-items: center; gap: 8px;
             background: #07090e; padding: 8px 14px; border-radius: 20px;
@@ -93,7 +92,6 @@
 
         .grid-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
-        /* Estilo Hoja de Cálculo / Tabla Analítica */
         .spreadsheet-table {
             width: 100%; border-collapse: collapse; margin-top: 15px; background: #07090e;
             border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);
@@ -104,6 +102,13 @@
         .spreadsheet-table th { background: #121622; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 1px; }
         .spreadsheet-table td { color: var(--text-main); }
         .spreadsheet-table tr:last-child td { border-bottom: none; }
+
+        .comments-box {
+            background: #07090e; border: 1px solid var(--border-color); border-radius: 8px;
+            padding: 12px; margin-top: 15px; max-height: 200px; overflow-y: auto; font-size: 0.85rem;
+        }
+        .comment-item { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-muted); }
+        .comment-item span { color: var(--accent-cyan); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -117,16 +122,16 @@
     </header>
 
     <div class="container">
-        <!-- Control de Transmisión y Reseteo Live -->
+        <!-- Control de Transmisión y Reseteo/Limpieza Global -->
         <div class="section-box">
-            <h2>📺 Gestión de Transmisión en Vivo</h2>
+            <h2>📺 Gestión de Transmisión en Vivo (TikTok)</h2>
             <div class="form-group">
-                <label>Enlace Embed de TikTok (o YouTube)</label>
-                <input type="text" id="input-live" placeholder="Ej: https://www.tiktok.com/embed/v2/...">
+                <label>Enlace del Live de TikTok</label>
+                <input type="text" id="input-live" placeholder="Ej: https://www.tiktok.com/@tu_usuario/live">
             </div>
             <div class="grid-actions">
                 <button class="btn-panel" onclick="guardarLive()">Guardar Transmisión</button>
-                <button class="btn-panel btn-danger" onclick="resetearLive()">🔄 Resetear Todo el Live (Likes/Compartidos)</button>
+                <button class="btn-panel btn-danger" onclick="limpiezaGeneral()">🧹 Limpieza Total (Resetear Votos y Likes)</button>
             </div>
         </div>
 
@@ -135,19 +140,19 @@
             <h2>🎬 Gestión de Enlaces de los Clips</h2>
             <div class="form-group">
                 <label>Enlace Clip 1</label>
-                <input type="text" id="input-clip1" placeholder="URL Clip 1">
+                <input type="text" id="input-clip1" placeholder="URL TikTok Embed Clip 1">
             </div>
             <div class="form-group">
                 <label>Enlace Clip 2</label>
-                <input type="text" id="input-clip2" placeholder="URL Clip 2">
+                <input type="text" id="input-clip2" placeholder="URL TikTok Embed Clip 2">
             </div>
             <div class="form-group">
                 <label>Enlace Clip 3</label>
-                <input type="text" id="input-clip3" placeholder="URL Clip 3">
+                <input type="text" id="input-clip3" placeholder="URL TikTok Embed Clip 3">
             </div>
             <div class="form-group">
                 <label>Enlace Clip 4</label>
-                <input type="text" id="input-clip4" placeholder="URL Clip 4">
+                <input type="text" id="input-clip4" placeholder="URL TikTok Embed Clip 4">
             </div>
             <button class="btn-panel" onclick="guardarClips()">Guardar Clips</button>
         </div>
@@ -157,14 +162,13 @@
             <h2>🔒 Estado de las Votaciones</h2>
             <div style="display: flex; gap: 15px;">
                 <button class="btn-panel" style="flex:1; background:linear-gradient(135deg, var(--accent-green), #00aa44); color:#000;" onclick="cambiarEstadoVotacion(true)">Abrir Votaciones</button>
-                <button class="btn-panel btn-danger" style="flex:1;" onclick="cambiarEstadoVotacion(false)">Cerrar Votaciones (Mostrar Ranking)</button>
+                <button class="btn-panel btn-danger" style="flex:1;" onclick="cambiarEstadoVotacion(false)">Cerrar Votaciones (Ocultar Cuadros)</button>
             </div>
         </div>
 
         <!-- Hoja de Cálculo / Analíticas en Tiempo Real -->
         <div class="section-box">
             <h2>📊 Hoja de Cálculo de Datos y Analíticas</h2>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Recopilación automática de la actividad actual del torneo:</p>
             <table class="spreadsheet-table">
                 <thead>
                     <tr>
@@ -173,7 +177,7 @@
                         <th>Detalle / Estado</th>
                     </tr>
                 </thead>
-                <tbody id="spreadsheet-body">
+                <tbody>
                     <tr><td>Likes en Directo</td><td id="stat-likes">0</td><td>Sincronizado</td></tr>
                     <tr><td>Compartidos</td><td id="stat-shares">0</td><td>Sincronizado</td></tr>
                     <tr><td>Votos Clip 1</td><td id="stat-votos1">0 votos</td><td id="porc-votos1">0%</td></tr>
@@ -183,21 +187,29 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Comentarios de los Espectadores -->
+        <div class="section-box">
+            <h2>💬 Comentarios del Público por Clip</h2>
+            <div class="comments-box" id="comments-container">
+                <p style="color: var(--text-muted); text-align: center;">Cargando comentarios registrados...</p>
+            </div>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-        import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+        import { getDatabase, ref, set, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
-        // PEGA AQUÍ TU CONFIGURACIÓN DE FIREBASE (La misma que en index.html)
+        // PEGA AQUÍ TU CONFIGURACIÓN DE FIREBASE (La misma que usaste en index.html)
         const firebaseConfig = {
-  apiKey: "AIzaSyAHPsKLBAJCu-N5SVS7mTdVHF-5AAVIGy4",
-  authDomain: "blood-strike-torneo.firebaseapp.com",
-  projectId: "blood-strike-torneo",
-  storageBucket: "blood-strike-torneo.firebasestorage.app",
-  messagingSenderId: "756331439350",
-  appId: "1:756331439350:web:06fbe26b312071d94ef8d7",
-  measurementId: "G-QWJBREPW9S"
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_PROJECT.firebaseapp.com",
+            databaseURL: "https://TU_PROJECT-default-rtdb.firebaseio.com",
+            projectId: "TU_PROJECT",
+            storageBucket: "TU_PROJECT.appspot.com",
+            messagingSenderId: "TU_SENDER_ID",
+            appId: "TU_APP_ID"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -222,20 +234,21 @@
             const config = snapshot.val() || {};
             if(config.live) document.getElementById('input-live').value = config.live;
             for(let i=1; i<=4; i++) {
-                if(config[`clip${i}`]) document.getElementById(`input-clip{i}`).value = config[`clip${i}`] || '';
-                // Corregido input ID
                 const inputClip = document.getElementById(`input-clip${i}`);
-                if(inputClip && config[`clip${i}`]) inputClip.value = config[`clip${i}`];
+                if(inputClip && config[`clip${i}`]) {
+                    inputClip.value = config[`clip${i}`];
+                }
             }
         });
 
-        // Escargar Estadísticas y Votos para la Hoja de Cálculo
+        // Sincronizar Estadísticas (Likes y Compartidos)
         onValue(ref(db, 'estadisticas'), (snapshot) => {
             const stats = snapshot.val() || { likes: 0, compartidos: 0 };
             document.getElementById('stat-likes').innerText = stats.likes || 0;
             document.getElementById('stat-shares').innerText = stats.compartidos || 0;
         });
 
+        // Sincronizar Votos
         onValue(ref(db, 'votos'), (snapshot) => {
             const data = snapshot.val() || { clip1: 0, clip2: 0, clip3: 0, clip4: 0 };
             const total = (data.clip1||0) + (data.clip2||0) + (data.clip3||0) + (data.clip4||0);
@@ -249,7 +262,28 @@
             });
         });
 
-        // Funciones de Guardado
+        // Sincronizar Comentarios
+        onValue(ref(db, 'comentarios'), (snapshot) => {
+            const commentsContainer = document.getElementById('comments-container');
+            const data = snapshot.val();
+            
+            if (!data) {
+                commentsContainer.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No hay comentarios registrados todavía.</p>';
+                return;
+            }
+
+            let htmlComments = '';
+            for (let clipKey in data) {
+                let clipComentarios = data[clipKey];
+                for (let id in clipComentarios) {
+                    let item = clipComentarios[id];
+                    htmlComments += `<div class="comment-item"><span>[${clipKey.toUpperCase()}]</span>: ${item.comentario}</div>`;
+                }
+            }
+            commentsContainer.innerHTML = htmlComments || '<p style="color: var(--text-muted); text-align: center;">No hay comentarios registrados todavía.</p>';
+        });
+
+        // Funciones del Admin
         window.guardarLive = function() {
             const url = document.getElementById('input-live').value;
             update(ref(db, 'config'), { live: url }).then(() => {
@@ -257,12 +291,12 @@
             });
         };
 
-        window.resetearLive = function() {
-            if(confirm("⚠️ ¿Estás seguro de resetear los likes, compartidos y el enlace del live para un nuevo día?")) {
+        window.limpiezaGeneral = function() {
+            if(confirm("⚠️ ¿Estás seguro de hacer una limpieza total? Esto borrará los votos, comentarios, likes y compartidos para dejar todo en blanco.")) {
                 set(ref(db, 'estadisticas'), { likes: 0, compartidos: 0 });
-                update(ref(db, 'config'), { live: "" });
-                document.getElementById('input-live').value = "";
-                alert("🔄 ¡Live reseteado para el nuevo día!");
+                set(ref(db, 'votos'), { clip1: 0, clip2: 0, clip3: 0, clip4: 0 });
+                remove(ref(db, 'comentarios'));
+                alert("🧹 ¡Limpieza completada con éxito! Todo ha quedado en blanco.");
             }
         };
 
@@ -278,7 +312,7 @@
 
         window.cambiarEstadoVotacion = function(estado) {
             update(ref(db, 'config'), { votacion_activa: estado }).then(() => {
-                alert(estado ? "🟢 ¡Votaciones abiertas!" : "🔒 ¡Votaciones cerradas (Ranking activado)!");
+                alert(estado ? "🟢 ¡Votaciones abiertas!" : "🔒 ¡Votaciones cerradas y cuadros ocultos en la página pública!");
             });
         };
     </script>
