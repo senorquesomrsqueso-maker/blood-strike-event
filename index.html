@@ -119,6 +119,9 @@
             cursor: pointer;
             transition: all 0.2s;
             font-size: 0.9rem;
+            text-decoration: none;
+            display: block;
+            text-align: left;
         }
         .sidebar-section:hover {
             border-color: var(--accent-cyan);
@@ -155,6 +158,7 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
+            transition: opacity 0.3s ease;
         }
         .clip-title { font-size: 1.1rem; color: var(--accent-cyan); font-weight: 800; text-transform: uppercase; }
         
@@ -189,11 +193,18 @@
         }
         .btn-comment:hover { background: var(--accent-cyan); color: #000; border-color: var(--accent-cyan); }
 
-        /* Mensaje cuando las votaciones están cerradas */
+        /* Mensaje y diseño cuando las votaciones están cerradas o inactivas */
         .closed-notice {
-            background: rgba(255, 0, 85, 0.1); border: 1px solid var(--accent-pink);
-            color: var(--accent-pink); padding: 15px; border-radius: 10px; text-align: center;
-            font-weight: bold; text-transform: uppercase; display: none; margin-bottom: 25px;
+            background: rgba(255, 0, 85, 0.1); border: 2px dashed var(--accent-pink);
+            color: var(--accent-pink); padding: 20px; border-radius: 14px; text-align: center;
+            font-weight: bold; text-transform: uppercase; margin-bottom: 25px; display: none;
+            letter-spacing: 1px; box-shadow: 0 0 20px rgba(255,0,85,0.2);
+        }
+        
+        .clips-grid.disabled-mode .clip-card {
+            opacity: 0.4;
+            pointer-events: none;
+            filter: grayscale(80%);
         }
     </style>
 </head>
@@ -207,16 +218,17 @@
     <!-- Fondo Oscuro del Menú -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-    <!-- Menú Desplegable Lateral -->
+    <!-- Menú Desplegable Lateral con Enlaces Independientes -->
     <div class="sidebar-menu" id="sidebarMenu">
         <div class="sidebar-header">
-            <h3>⚡ Opciones ⚡</h3>
+            <h3>⚡ Navegación ⚡</h3>
             <button class="close-btn" onclick="toggleSidebar()">✕</button>
         </div>
         <div class="sidebar-content">
-            <div class="sidebar-section" onclick="alert('Aquí puedes poner un enlace a las reglas del torneo.')">📜 Reglas y Formato</div>
-            <div class="sidebar-section" onclick="alert('Premios: 1er Lugar pase directo, etc.')">🎁 Premios del Torneo</div>
-            <div class="sidebar-section" onclick="window.open('https://discord.com', '_blank')">💬 Unirse al Discord</div>
+            <a href="reglas.html" class="sidebar-section">📜 Reglas y Formato</a>
+            <a href="premios.html" class="sidebar-section">🎁 Premios del Torneo</a>
+            <a href="historial.html" class="sidebar-section">🏆 Salón de la Fama</a>
+            <a href="https://discord.gg/tu-enlace-de-discord" target="_blank" class="sidebar-section">💬 Unirse al Discord</a>
         </div>
     </div>
 
@@ -227,9 +239,9 @@
 
     <div class="container">
         
-        <!-- Aviso si cierran las votaciones -->
+        <!-- Aviso de Votaciones Cerradas -->
         <div class="closed-notice" id="closedNotice">
-            🔒 Las votaciones se encuentran temporalmente cerradas por el Administrador.
+            🔒 Las votaciones se encuentran cerradas temporalmente o no hay clips activos en este momento. Vuelve más tarde.
         </div>
 
         <!-- Reacciones Globales -->
@@ -238,9 +250,8 @@
             <button class="react-btn" onclick="compartirStream()">🔗 Compartir <span id="lbl-shares">0</span></button>
         </div>
 
-        <!-- Tarjetas de Clips -->
+        <!-- Cuadrícula de los 4 Clips -->
         <div class="clips-grid" id="clipsGrid">
-            <!-- Se generan dinámicamente o se muestran por defecto -->
             <div class="clip-card" id="card-clip1">
                 <div class="clip-title">Clip 1</div>
                 <div class="video-container" id="container-clip1">Cargando clip...</div>
@@ -248,7 +259,7 @@
                     <button class="btn-vote" onclick="votar('clip1')">Votar por Clip 1</button>
                     <div class="vote-count" id="count-clip1">0 votos (0%)</div>
                     <div class="comment-box-container">
-                        <textarea class="comment-input" id="text-clip1" placeholder="Deja tu comentario sobre este clip..."></textarea>
+                        <textarea class="comment-input" id="text-clip1" placeholder="Deja tu comentario..."></textarea>
                         <button class="btn-comment" onclick="enviarComentario('clip1')">Enviar Comentario</button>
                     </div>
                 </div>
@@ -261,7 +272,7 @@
                     <button class="btn-vote" onclick="votar('clip2')">Votar por Clip 2</button>
                     <div class="vote-count" id="count-clip2">0 votos (0%)</div>
                     <div class="comment-box-container">
-                        <textarea class="comment-input" id="text-clip2" placeholder="Deja tu comentario sobre este clip..."></textarea>
+                        <textarea class="comment-input" id="text-clip2" placeholder="Deja tu comentario..."></textarea>
                         <button class="btn-comment" onclick="enviarComentario('clip2')">Enviar Comentario</button>
                     </div>
                 </div>
@@ -274,7 +285,7 @@
                     <button class="btn-vote" onclick="votar('clip3')">Votar por Clip 3</button>
                     <div class="vote-count" id="count-clip3">0 votos (0%)</div>
                     <div class="comment-box-container">
-                        <textarea class="comment-input" id="text-clip3" placeholder="Deja tu comentario sobre este clip..."></textarea>
+                        <textarea class="comment-input" id="text-clip3" placeholder="Deja tu comentario..."></textarea>
                         <button class="btn-comment" onclick="enviarComentario('clip3')">Enviar Comentario</button>
                     </div>
                 </div>
@@ -286,9 +297,8 @@
                 <div class="vote-section" id="section-clip4">
                     <button class="btn-vote" onclick="votar('clip4')">Votar por Clip 4</button>
                     <div class="vote-count" id="count-clip4">0 votos (0%)</div>
-                    <div class="video-container" style="display:none;"></div>
                     <div class="comment-box-container">
-                        <textarea class="comment-input" id="text-clip4" placeholder="Deja tu comentario sobre este clip..."></textarea>
+                        <textarea class="comment-input" id="text-clip4" placeholder="Deja tu comentario..."></textarea>
                         <button class="btn-comment" onclick="enviarComentario('clip4')">Enviar Comentario</button>
                     </div>
                 </div>
@@ -321,21 +331,24 @@
             document.getElementById('sidebarOverlay').classList.toggle('active');
         };
 
-        // Sincronizar Configuración (Clips y Estado de Votación)
+        // Sincronizar Configuración y Estado de Votaciones / Clips
         onValue(ref(db, 'config'), (snapshot) => {
             const config = snapshot.val() || {};
-            
-            // Estado de Votaciones
-            const votacionActiva = config.votacion_activa !== false; // Por defecto abierto
+            const votacionActiva = config.votacion_activa !== false;
             const notice = document.getElementById('closedNotice');
+            const grid = document.getElementById('clipsGrid');
             
+            // Gestionar aspecto visual cuando está cerrado
+            if (!votacionActiva) {
+                notice.style.display = 'block';
+                grid.classList.add('disabled-mode');
+            } else {
+                notice.style.display = 'none';
+                grid.classList.remove('disabled-mode');
+            }
+
+            // Cargar los 4 iframes de los clips
             for(let i=1; i<=4; i++) {
-                const section = document.getElementById(`section-clip${i}`);
-                if(section) {
-                    section.style.display = votacionActiva ? 'flex' : 'none';
-                }
-                
-                // Cargar Iframe del Clip
                 const container = document.getElementById(`container-clip${i}`);
                 const url = config[`clip${i}`];
                 if(url) {
@@ -344,8 +357,6 @@
                     container.innerHTML = `<span style="color:var(--text-muted); font-size:0.85rem;">Clip no configurado</span>`;
                 }
             }
-
-            notice.style.display = votacionActiva ? 'none' : 'block';
         });
 
         // Sincronizar Estadísticas (Likes y Compartidos)
