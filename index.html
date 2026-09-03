@@ -117,11 +117,22 @@
         }
         .clip-title { font-size: 1.1rem; color: var(--accent-cyan); font-weight: 800; text-transform: uppercase; }
         
-        .video-container {
-            width: 100%; height: 350px; background: #000; border-radius: 10px; overflow: hidden;
-            border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center;
+        /* Contenedor tipo Tarjeta enlace a TikTok */
+        .video-preview-box {
+            width: 100%; height: 280px; background: #07090e; border-radius: 10px; overflow: hidden;
+            border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; text-decoration: none; transition: border-color 0.2s;
         }
-        .video-container iframe { width: 100%; height: 100%; border: none; }
+        .video-preview-box:hover { border-color: var(--accent-cyan); }
+        .video-preview-box img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0.6; }
+        
+        .tiktok-btn-overlay {
+            position: relative; z-index: 2; background: rgba(0,0,0,0.8); border: 1px solid var(--accent-cyan);
+            color: var(--text-main); padding: 10px 20px; border-radius: 30px; font-weight: 900;
+            text-transform: uppercase; font-size: 0.8rem; display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 15px rgba(0,242,255,0.3); transition: transform 0.2s;
+        }
+        .video-preview-box:hover .tiktok-btn-overlay { transform: scale(1.05); background: var(--accent-cyan); color: #000; }
 
         .vote-section { display: flex; flex-direction: column; gap: 10px; }
         .btn-vote {
@@ -162,7 +173,6 @@
     <button class="menu-toggle-btn" onclick="toggleSidebar()">☰ Menú</button>
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-    <!-- Menú Lateral optimizado (Solo Salón de la Fama y Discord dinámicos) -->
     <div class="sidebar-menu" id="sidebarMenu">
         <div class="sidebar-header">
             <h3>⚡ Navegación ⚡</h3>
@@ -176,7 +186,7 @@
 
     <header>
         <h1>⚡ Blood Strike Tournament ⚡</h1>
-        <p class="subtitle">¡Disfruta de los mejores clips y apoya votando por tu favorito!</p>
+        <p class="subtitle">¡Disfruta de los mejores clips en TikTok y apoya votando por tu favorito!</p>
     </header>
 
     <div class="container">
@@ -194,7 +204,10 @@
             <!-- Clip 1 -->
             <div class="clip-card" id="card-clip1">
                 <div class="clip-title">Clip 1</div>
-                <div class="video-container" id="container-clip1">Cargando clip...</div>
+                <a href="#" id="link-clip1" target="_blank" class="video-preview-box">
+                    <span id="img-container-clip1"></span>
+                    <div class="tiktok-btn-overlay">▶ Ver Clip en TikTok</div>
+                </a>
                 <div class="vote-section" id="section-clip1">
                     <button class="btn-vote" onclick="votar('clip1')">Votar por Clip 1</button>
                     <div class="vote-count" id="count-clip1">0 votos (0%)</div>
@@ -207,7 +220,10 @@
             <!-- Clip 2 -->
             <div class="clip-card" id="card-clip2">
                 <div class="clip-title">Clip 2</div>
-                <div class="video-container" id="container-clip2">Cargando clip...</div>
+                <a href="#" id="link-clip2" target="_blank" class="video-preview-box">
+                    <span id="img-container-clip2"></span>
+                    <div class="tiktok-btn-overlay">▶ Ver Clip en TikTok</div>
+                </a>
                 <div class="vote-section" id="section-clip2">
                     <button class="btn-vote" onclick="votar('clip2')">Votar por Clip 2</button>
                     <div class="vote-count" id="count-clip2">0 votos (0%)</div>
@@ -220,7 +236,10 @@
             <!-- Clip 3 -->
             <div class="clip-card" id="card-clip3">
                 <div class="clip-title">Clip 3</div>
-                <div class="video-container" id="container-clip3">Cargando clip...</div>
+                <a href="#" id="link-clip3" target="_blank" class="video-preview-box">
+                    <span id="img-container-clip3"></span>
+                    <div class="tiktok-btn-overlay">▶ Ver Clip en TikTok</div>
+                </a>
                 <div class="vote-section" id="section-clip3">
                     <button class="btn-vote" onclick="votar('clip3')">Votar por Clip 3</button>
                     <div class="vote-count" id="count-clip3">0 votos (0%)</div>
@@ -233,7 +252,10 @@
             <!-- Clip 4 -->
             <div class="clip-card" id="card-clip4">
                 <div class="clip-title">Clip 4</div>
-                <div class="video-container" id="container-clip4">Cargando clip...</div>
+                <a href="#" id="link-clip4" target="_blank" class="video-preview-box">
+                    <span id="img-container-clip4"></span>
+                    <div class="tiktok-btn-overlay">▶ Ver Clip en TikTok</div>
+                </a>
                 <div class="vote-section" id="section-clip4">
                     <button class="btn-vote" onclick="votar('clip4')">Votar por Clip 4</button>
                     <div class="vote-count" id="count-clip4">0 votos (0%)</div>
@@ -252,13 +274,13 @@
         import { getDatabase, ref, runTransaction, onValue, push } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
         const firebaseConfig = {
-  apiKey: "AIzaSyAHPsKLBAJCu-N5SVS7mTdVHF-5AAVIGy4",
-  authDomain: "blood-strike-torneo.firebaseapp.com",
-  projectId: "blood-strike-torneo",
-  storageBucket: "blood-strike-torneo.firebasestorage.app",
-  messagingSenderId: "756331439350",
-  appId: "1:756331439350:web:06fbe26b312071d94ef8d7",
-  measurementId: "G-QWJBREPW9S"
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_PROJECT.firebaseapp.com",
+            databaseURL: "https://TU_PROJECT-default-rtdb.firebaseio.com",
+            projectId: "TU_PROJECT",
+            storageBucket: "TU_PROJECT.appspot.com",
+            messagingSenderId: "TU_SENDER_ID",
+            appId: "TU_APP_ID"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -269,7 +291,6 @@
             document.getElementById('sidebarOverlay').classList.toggle('active');
         };
 
-        // Sincronizar configuración general, clips y enlaces dinámicos
         onValue(ref(db, 'config'), (snapshot) => {
             const config = snapshot.val() || {};
             const votacionActiva = config.votacion_activa !== false;
@@ -284,21 +305,25 @@
                 grid.classList.remove('disabled-mode');
             }
 
-            // Actualizar enlace de Discord dinámico desde Firebase
             const discordBtn = document.getElementById('discordLinkBtn');
-            if (config.discord_link) {
-                discordBtn.href = config.discord_link;
-            } else {
-                discordBtn.href = "https://discord.gg";
-            }
+            discordBtn.href = config.discord_link || "https://discord.gg";
 
             for(let i=1; i<=4; i++) {
-                const container = document.getElementById(`container-clip${i}`);
+                const linkEl = document.getElementById(`link-clip${i}`);
+                const imgContainer = document.getElementById(`img-container-clip${i}`);
                 const url = config[`clip${i}`];
+                const imgUrl = config[`clip${i}_img`]; // Imagen de miniatura opcional
+
                 if(url) {
-                    container.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
+                    linkEl.href = url;
                 } else {
-                    container.innerHTML = `<span style="color:var(--text-muted); font-size:0.85rem;">Clip no configurado</span>`;
+                    linkEl.href = "#";
+                }
+
+                if(imgUrl) {
+                    imgContainer.innerHTML = `<img src="${imgUrl}" alt="Miniatura Clip ${i}">`;
+                } else {
+                    imgContainer.innerHTML = `<div style="color:var(--text-muted); font-size:0.8rem; padding:10px; text-align:center;">Sin imagen de portada</div>`;
                 }
             }
         });
@@ -314,7 +339,6 @@
             const total = (data.clip1||0) + (data.clip2||0) + (data.clip3||0) + (data.clip4||0);
 
             ['clip1', 'clip2', 'clip3', 'clip4'].forEach((clip, index) => {
-                const num = index + 1;
                 const votos = data[clip] || 0;
                 const porcentaje = total > 0 ? Math.round((votos / total) * 100) : 0;
                 const countEl = document.getElementById(`count-${clip}`);
