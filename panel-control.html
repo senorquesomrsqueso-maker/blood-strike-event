@@ -90,6 +90,12 @@
             color: #fff; box-shadow: 0 4px 15px rgba(255,0,85,0.3);
         }
 
+        .btn-excel {
+            background: linear-gradient(135deg, var(--accent-green), #00aa44);
+            color: #000; box-shadow: 0 4px 15px rgba(0,255,102,0.3);
+            width: 100%; margin-top: 15px; font-size: 0.95rem; padding: 14px;
+        }
+
         .grid-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
         .spreadsheet-table {
@@ -122,7 +128,7 @@
     </header>
 
     <div class="container">
-        <!-- Control de Transmisión y Reseteo/Limpieza Global -->
+        <!-- Control de Transmisión y Limpieza Global -->
         <div class="section-box">
             <h2>📺 Gestión de Transmisión en Vivo (TikTok)</h2>
             <div class="form-group">
@@ -131,7 +137,7 @@
             </div>
             <div class="grid-actions">
                 <button class="btn-panel" onclick="guardarLive()">Guardar Transmisión</button>
-                <button class="btn-panel btn-danger" onclick="limpiezaGeneral()">🧹 Limpieza Total (Resetear Votos y Likes)</button>
+                <button class="btn-panel btn-danger" onclick="limpiezaGeneral()">🧹 Limpieza Total (Resetear Votos/Likes)</button>
             </div>
         </div>
 
@@ -166,7 +172,7 @@
             </div>
         </div>
 
-        <!-- Hoja de Cálculo / Analíticas en Tiempo Real -->
+        <!-- Analíticas y Botón de Hoja de Cálculo Excel -->
         <div class="section-box">
             <h2>📊 Hoja de Cálculo de Datos y Analíticas</h2>
             <table class="spreadsheet-table">
@@ -177,7 +183,7 @@
                         <th>Detalle / Estado</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="table-metrics-body">
                     <tr><td>Likes en Directo</td><td id="stat-likes">0</td><td>Sincronizado</td></tr>
                     <tr><td>Compartidos</td><td id="stat-shares">0</td><td>Sincronizado</td></tr>
                     <tr><td>Votos Clip 1</td><td id="stat-votos1">0 votos</td><td id="porc-votos1">0%</td></tr>
@@ -186,6 +192,9 @@
                     <tr><td>Votos Clip 4</td><td id="stat-votos4">0 votos</td><td id="porc-votos4">0%</td></tr>
                 </tbody>
             </table>
+            
+            <!-- Botón de Exportación a Hoja de Cálculo -->
+            <button class="btn-panel btn-excel" onclick="exportarHojaDeCalculo()">📥 Descargar Hoja de Cálculo (Excel / CSV)</button>
         </div>
 
         <!-- Comentarios de los Espectadores -->
@@ -201,19 +210,26 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
         import { getDatabase, ref, set, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
-        // PEGA AQUÍ TU CONFIGURACIÓN DE FIREBASE (La misma que usaste en index.html)
+        // PEGA AQUÍ TU CONFIGURACIÓN DE FIREBASE
         const firebaseConfig = {
-            apiKey: "TU_API_KEY",
-            authDomain: "TU_PROJECT.firebaseapp.com",
-            databaseURL: "https://TU_PROJECT-default-rtdb.firebaseio.com",
-            projectId: "TU_PROJECT",
-            storageBucket: "TU_PROJECT.appspot.com",
-            messagingSenderId: "TU_SENDER_ID",
-            appId: "TU_APP_ID"
+  apiKey: "AIzaSyAHPsKLBAJCu-N5SVS7mTdVHF-5AAVIGy4",
+  authDomain: "blood-strike-torneo.firebaseapp.com",
+  projectId: "blood-strike-torneo",
+  storageBucket: "blood-strike-torneo.firebasestorage.app",
+  messagingSenderId: "756331439350",
+  appId: "1:756331439350:web:06fbe26b312071d94ef8d7",
+  measurementId: "G-QWJBREPW9S"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+
+        let cacheDatosGlobal = {
+            likes: 0,
+            compartidos: 0,
+            votos: { clip1: 0, clip2: 0, clip3: 0, clip4: 0 },
+            comentarios: {}
+        };
 
         // Comprobar Conexión Activa con Firebase
         const connectedRef = ref(db, ".info/connected");
@@ -229,7 +245,7 @@
             }
         });
 
-        // Cargar datos actuales en los inputs
+        // Cargar datos actuales en los inputs de configuración
         onValue(ref(db, 'config'), (snapshot) => {
             const config = snapshot.val() || {};
             if(config.live) document.getElementById('input-live').value = config.live;
@@ -241,16 +257,20 @@
             }
         });
 
-        // Sincronizar Estadísticas (Likes y Compartidos)
+        // Sincronizar Estadísticas
         onValue(ref(db, 'estadisticas'), (snapshot) => {
             const stats = snapshot.val() || { likes: 0, compartidos: 0 };
-            document.getElementById('stat-likes').innerText = stats.likes || 0;
-            document.getElementById('stat-shares').innerText = stats.compartidos || 0;
+            cacheDatosGlobal.likes = stats.likes || 0;
+            cacheDatosGlobal.compartidos = stats.compartidos || 0;
+
+            document.getElementById('stat-likes').innerText = cacheDatosGlobal.likes;
+            document.getElementById('stat-shares').innerText = cacheDatosGlobal.compartidos;
         });
 
         // Sincronizar Votos
         onValue(ref(db, 'votos'), (snapshot) => {
             const data = snapshot.val() || { clip1: 0, clip2: 0, clip3: 0, clip4: 0 };
+            cacheDatosGlobal.votos = data;
             const total = (data.clip1||0) + (data.clip2||0) + (data.clip3||0) + (data.clip4||0);
 
             ['clip1', 'clip2', 'clip3', 'clip4'].forEach((clip, index) => {
@@ -265,9 +285,10 @@
         // Sincronizar Comentarios
         onValue(ref(db, 'comentarios'), (snapshot) => {
             const commentsContainer = document.getElementById('comments-container');
-            const data = snapshot.val();
+            const data = snapshot.val() || {};
+            cacheDatosGlobal.comentarios = data;
             
-            if (!data) {
+            if (Object.keys(data).length === 0) {
                 commentsContainer.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No hay comentarios registrados todavía.</p>';
                 return;
             }
@@ -280,7 +301,7 @@
                     htmlComments += `<div class="comment-item"><span>[${clipKey.toUpperCase()}]</span>: ${item.comentario}</div>`;
                 }
             }
-            commentsContainer.innerHTML = htmlComments || '<p style="color: var(--text-muted); text-align: center;">No hay comentarios registrados todavía.</p>';
+            commentsContainer.innerHTML = htmlComments;
         });
 
         // Funciones del Admin
@@ -314,6 +335,50 @@
             update(ref(db, 'config'), { votacion_activa: estado }).then(() => {
                 alert(estado ? "🟢 ¡Votaciones abiertas!" : "🔒 ¡Votaciones cerradas y cuadros ocultos en la página pública!");
             });
+        };
+
+        // Generar y Descargar Hoja de Cálculo (CSV compatible con Excel y Google Sheets)
+        window.exportarHojaDeCalculo = function() {
+            let csvContent = "\uFEFF"; // BOM para correcta lectura de tildes y caracteres latinos en Excel
+            
+            csvContent += "=== RESUMEN GENERAL DE METRICAS ===\n";
+            csvContent += `Likes en Directo,${cacheDatosGlobal.likes}\n`;
+            csvContent += `Compartidos,${cacheDatosGlobal.compartidos}\n\n`;
+
+            csvContent += "=== RESULTADOS DE VOTOS POR CLIP ===\n";
+            csvContent += "Clip,Votos\n";
+            csvContent += `Clip 1,${cacheDatosGlobal.votos.clip1 || 0}\n`;
+            csvContent += `Clip 2,${cacheDatosGlobal.votos.clip2 || 0}\n`;
+            csvContent += `Clip 3,${cacheDatosGlobal.votos.clip3 || 0}\n`;
+            csvContent += `Clip 4,${cacheDatosGlobal.votos.clip4 || 0}\n\n`;
+
+            csvContent += "=== COMENTARIOS DEL PUBLICO ===\n";
+            csvContent += "Clip,Comentario,Fecha\n";
+            
+            let hayComentarios = false;
+            for (let clipKey in cacheDatosGlobal.comentarios) {
+                let clipComentarios = cacheDatosGlobal.comentarios[clipKey];
+                for (let id in clipComentarios) {
+                    hayComentarios = true;
+                    let item = clipComentarios[id];
+                    let comentarioLimpio = `"${(item.comentario || "").replace(/"/g, '""')}"`;
+                    csvContent += `${clipKey.toUpperCase()},${comentarioLimpio},${item.fecha || ""}\n`;
+                }
+            }
+
+            if (!hayComentarios) {
+                csvContent += "Ninguno,No hay comentarios registrados,N/A\n";
+            }
+
+            // Crear archivo descargable temporal
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Reporte_BloodStrike_Tournament_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         };
     </script>
 </body>
