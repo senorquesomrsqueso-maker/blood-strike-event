@@ -106,7 +106,6 @@
         }
         .btn-toggle-vote:hover { border-color: var(--accent-cyan); }
 
-        /* Estadísticas en Vivo Admin */
         .stats-preview-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px;
         }
@@ -138,30 +137,46 @@
         </div>
 
         <div class="admin-grid">
-            <!-- Configuración de Clips y Enlaces -->
+            <!-- Configuración de Enlaces de TikTok y Discord -->
             <div class="card">
-                <h2>🎬 Enlaces de Clips y Discord</h2>
+                <h2>🎬 Enlaces de TikTok y Discord</h2>
                 <div class="form-group">
-                    <label>Enlace Iframe Clip 1</label>
-                    <input type="text" id="input-clip1" placeholder="Ej: https://www.youtube.com/embed/...">
+                    <label>Enlace TikTok Clip 1</label>
+                    <input type="text" id="input-clip1" placeholder="Ej: https://www.tiktok.com/@usuario/video/...">
                 </div>
                 <div class="form-group">
-                    <label>Enlace Iframe Clip 2</label>
-                    <input type="text" id="input-clip2" placeholder="Ej: https://www.youtube.com/embed/...">
+                    <label>URL Imagen Portada Clip 1 (Opcional)</label>
+                    <input type="text" id="input-clip1-img" placeholder="Ej: https://... (enlace directo a imagen)">
                 </div>
                 <div class="form-group">
-                    <label>Enlace Iframe Clip 3</label>
-                    <input type="text" id="input-clip3" placeholder="Ej: https://www.youtube.com/embed/...">
+                    <label>Enlace TikTok Clip 2</label>
+                    <input type="text" id="input-clip2" placeholder="Ej: https://www.tiktok.com/@usuario/video/...">
                 </div>
                 <div class="form-group">
-                    <label>Enlace Iframe Clip 4</label>
-                    <input type="text" id="input-clip4" placeholder="Ej: https://www.youtube.com/embed/...">
+                    <label>URL Imagen Portada Clip 2 (Opcional)</label>
+                    <input type="text" id="input-clip2-img" placeholder="Ej: https://...">
+                </div>
+                <div class="form-group">
+                    <label>Enlace TikTok Clip 3</label>
+                    <input type="text" id="input-clip3" placeholder="Ej: https://www.tiktok.com/@usuario/video/...">
+                </div>
+                <div class="form-group">
+                    <label>URL Imagen Portada Clip 3 (Opcional)</label>
+                    <input type="text" id="input-clip3-img" placeholder="Ej: https://...">
+                </div>
+                <div class="form-group">
+                    <label>Enlace TikTok Clip 4</label>
+                    <input type="text" id="input-clip4" placeholder="Ej: https://www.tiktok.com/@usuario/video/...">
+                </div>
+                <div class="form-group">
+                    <label>URL Imagen Portada Clip 4 (Opcional)</label>
+                    <input type="text" id="input-clip4-img" placeholder="Ej: https://...">
                 </div>
                 <div class="form-group">
                     <label>Enlace del Servidor de Discord</label>
                     <input type="text" id="input-discord" placeholder="Ej: https://discord.gg/tu-servidor">
                 </div>
-                <button class="btn-action" onclick="guardarClipsYDiscord()">Guardar Cambios de Enlaces</button>
+                <button class="btn-action" onclick="guardarClipsYDiscord()">Guardar Cambios</button>
             </div>
 
             <!-- Configuración del Salón de la Fama -->
@@ -236,16 +251,15 @@
         let estadoActualVotacion = true;
         let datosCompletosGlobales = {};
 
-        // Escuchar configuración y datos en tiempo real para el panel
         onValue(ref(db), (snapshot) => {
             const data = snapshot.val() || {};
-            datosCompletosGlobales = data; // Guardamos todo para la exportación
+            datosCompletosGlobales = data;
 
             const config = data.config || {};
-            document.getElementById('input-clip1').value = config.clip1 || '';
-            document.getElementById('input-clip2').value = config.clip2 || '';
-            document.getElementById('input-clip3').value = config.clip3 || '';
-            document.getElementById('input-clip4').value = config.clip4 || '';
+            for(let i=1; i<=4; i++) {
+                document.getElementById(`input-clip${i}`).value = config[`clip${i}`] || '';
+                document.getElementById(`input-clip${i}-img`).value = config[`clip${i}_img`] || '';
+            }
             document.getElementById('input-discord').value = config.discord_link || '';
             
             document.getElementById('input-salon-titulo').value = config.salon_titulo || '';
@@ -254,7 +268,6 @@
             estadoActualVotacion = config.votacion_activa !== false;
             actualizarInterfazEstado();
 
-            // Actualizar contadores visuales en el panel
             const votos = data.votos || { clip1: 0, clip2: 0, clip3: 0, clip4: 0 };
             document.getElementById('admin-votos-clip1').innerText = votos.clip1 || 0;
             document.getElementById('admin-votos-clip2').innerText = votos.clip2 || 0;
@@ -288,14 +301,18 @@
         window.guardarClipsYDiscord = function() {
             const updates = {
                 clip1: document.getElementById('input-clip1').value.trim(),
+                clip1_img: document.getElementById('input-clip1-img').value.trim(),
                 clip2: document.getElementById('input-clip2').value.trim(),
+                clip2_img: document.getElementById('input-clip2-img').value.trim(),
                 clip3: document.getElementById('input-clip3').value.trim(),
+                clip3_img: document.getElementById('input-clip3-img').value.trim(),
                 clip4: document.getElementById('input-clip4').value.trim(),
+                clip4_img: document.getElementById('input-clip4-img').value.trim(),
                 discord_link: document.getElementById('input-discord').value.trim()
             };
 
             update(ref(db, 'config'), updates).then(() => {
-                alert("¡Clips y enlace de Discord guardados correctamente!");
+                alert("¡Enlaces de TikTok, imágenes y Discord guardados correctamente!");
             });
         };
 
@@ -323,16 +340,14 @@
             }
         };
 
-        // Función para exportar los votos, estadísticas y comentarios en formato CSV (Compatible con Google Sheets y Excel)
         window.exportarACSV = function() {
             const votos = datosCompletosGlobales.votos || { clip1: 0, clip2: 0, clip3: 0, clip4: 0 };
             const stats = datosCompletosGlobales.estadisticas || { likes: 0, compartidos: 0 };
             const comentarios = datosCompletosGlobales.comentarios || {};
 
-            let csvContent = "\uFEFF"; // BOM para correcta lectura de tildes y caracteres especiales en Excel/Sheets
+            let csvContent = "\uFEFF";
             csvContent += "REPORTE DE RESULTADOS Y COMENTARIOS - BLOOD STRIKE LATAM\n\n";
             
-            // Sección de Votos y Estadísticas
             csvContent += "CATEGORIA,VALOR\n";
             csvContent += `Votos Clip 1,${votos.clip1 || 0}\n`;
             csvContent += `Votos Clip 2,${votos.clip2 || 0}\n`;
@@ -341,7 +356,6 @@
             csvContent += `Total Likes,${stats.likes || 0}\n`;
             csvContent += `Total Veces Compartido,${stats.compartidos || 0}\n\n`;
 
-            // Sección de Comentarios por Clip
             csvContent += "COMENTARIOS POR CLIP\n";
             csvContent += "CLIP,HORA,COMENTARIO\n";
 
@@ -349,7 +363,6 @@
                 const comsClip = comentarios[clipKey];
                 if(comsClip) {
                     Object.values(comsClip).forEach(item => {
-                        // Limpiamos comillas dobles y saltos de línea para que no rompan el CSV
                         const textoLimpio = (item.comentario || "").replace(/"/g, '""').replace(/\n/g, ' ');
                         const horaLimpia = item.fecha || "N/A";
                         csvContent += `"${clipKey.toUpperCase()}","${horaLimpia}","${textoLimpio}"\n`;
@@ -357,7 +370,6 @@
                 }
             });
 
-            // Crear archivo descargable
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
@@ -367,7 +379,7 @@
             link.click();
             document.body.removeChild(link);
             
-            alert("¡Reporte exportado con éxito! Puedes abrir el archivo descargado directamente en Google Sheets o Excel.");
+            alert("¡Reporte exportado con éxito!");
         };
     </script>
 </body>
