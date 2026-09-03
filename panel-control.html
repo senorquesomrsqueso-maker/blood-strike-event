@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - Blood Strike Tournament</title>
+    <title>Panel de Administración - Blood Strike LATAM</title>
     <style>
         :root {
             --bg-base: #07090e;
@@ -18,369 +18,357 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-
+        
         body { 
             background: radial-gradient(circle at top, #141b2d 0%, var(--bg-base) 100%); 
             color: var(--text-main); 
-            min-height: 100vh;
-            padding: 30px 20px;
+            min-height: 100vh; 
+            padding: 40px 20px; 
         }
 
-        .container { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 25px; }
+        .container { max-width: 950px; margin: 0 auto; }
 
         header { 
             background: var(--bg-card); 
-            padding: 20px 30px; 
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
+            border: 1px solid var(--border-color); 
+            padding: 25px; 
+            border-radius: 16px; 
+            margin-bottom: 25px;
+            display: flex; justify-content: space-between; align-items: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
         }
         h1 { 
             font-size: 1.6rem; 
-            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-pink));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-transform: uppercase; 
-            font-weight: 900;
-        }
-
-        /* Tarjetas de Sección */
-        .admin-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .admin-card h2 {
             color: var(--accent-cyan);
-            font-size: 1.2rem;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
+            text-transform: uppercase; 
+            letter-spacing: 1px;
         }
-
-        /* Control de Estado de Votación */
-        .status-control {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #0f1423;
-            padding: 15px 20px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-        .status-info span { font-weight: bold; font-size: 1.1rem; }
-        .btn-toggle-status {
-            padding: 10px 20px;
-            font-weight: 900;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            transition: transform 0.2s;
-        }
-        .btn-toggle-status.active { background: var(--accent-green); color: #000; box-shadow: 0 0 15px rgba(0,255,102,0.3); }
-        .btn-toggle-status.paused { background: var(--accent-pink); color: #fff; box-shadow: 0 0 15px rgba(255,0,85,0.3); }
-
-        /* Formulario de Clips */
-        .clips-form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 20px;
-        }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            background: #0f1423;
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-        .input-group label { font-size: 0.9rem; font-weight: bold; color: var(--text-muted); text-transform: uppercase; }
-        .input-field {
-            background: #07090e;
-            border: 1px solid var(--border-color);
-            padding: 10px 12px;
-            border-radius: 8px;
-            color: var(--text-main);
-            font-size: 0.9rem;
-        }
-        .input-field:focus { outline: none; border-color: var(--accent-cyan); }
         
-        .btn-save {
+        .btn-regresar {
+            background: #151b2c; border: 1px solid var(--border-color);
+            color: var(--text-main); padding: 10px 18px; border-radius: 8px;
+            font-weight: bold; text-decoration: none; font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .btn-regresar:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+
+        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        @media(max-width: 768px) { .admin-grid { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 25px;
+        }
+        .card h2 { font-size: 1.2rem; color: var(--accent-yellow); margin-bottom: 15px; text-transform: uppercase; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 6px; }
+        label { font-size: 0.85rem; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        input, textarea {
+            background: #07090e; border: 1px solid var(--border-color);
+            padding: 12px; border-radius: 8px; color: var(--text-main); font-size: 0.9rem;
+        }
+        input:focus, textarea:focus { outline: none; border-color: var(--accent-cyan); }
+        textarea { resize: vertical; height: 100px; }
+
+        .btn-action {
             background: linear-gradient(135deg, var(--accent-cyan), #0088ff);
-            color: #000;
-            border: none;
-            padding: 12px 25px;
-            font-weight: 900;
-            border-radius: 8px;
-            cursor: pointer;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-            margin-top: 15px;
-            box-shadow: 0 4px 15px rgba(0,242,255,0.3);
-            transition: filter 0.2s;
+            color: #000; border: none; padding: 12px 20px; font-weight: 900;
+            border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.9rem;
+            width: 100%; transition: filter 0.2s; box-shadow: 0 4px 15px rgba(0,242,255,0.3);
+            margin-top: 5px;
         }
-        .btn-save:hover { filter: brightness(1.1); }
+        .btn-action:hover { filter: brightness(1.1); }
 
-        /* Estadísticas y Resultados en Vivo */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent-green), #00aa44);
+            color: #000; box-shadow: 0 4px 15px rgba(0,255,102,0.3);
         }
-        .stat-box {
-            background: #0f1423;
-            border: 1px solid var(--border-color);
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-        }
-        .stat-title { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
-        .stat-value { font-size: 1.5rem; font-weight: 900; color: var(--accent-cyan); }
 
-        /* Contenedor de Comentarios */
-        .comments-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-height: 300px;
-            overflow-y: auto;
-            padding-right: 5px;
+        .btn-danger {
+            background: linear-gradient(135deg, var(--accent-pink), #aa0033);
+            color: #fff; box-shadow: 0 4px 15px rgba(255,0,85,0.3);
         }
-        .comment-item {
-            background: #0f1423;
-            border: 1px solid var(--border-color);
-            padding: 12px 15px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+
+        .status-box {
+            background: rgba(0, 255, 102, 0.05); border: 1px solid var(--accent-green);
+            padding: 15px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 25px;
         }
-        .comment-text { font-size: 0.9rem; color: var(--text-main); }
-        .comment-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+        .status-box.closed {
+            background: rgba(255, 0, 85, 0.05); border-color: var(--accent-pink);
+        }
+        .status-text { font-weight: bold; font-size: 1rem; }
+        
+        .btn-toggle-vote {
+            background: #151b2c; border: 1px solid var(--border-color); color: var(--text-main);
+            padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem;
+        }
+        .btn-toggle-vote:hover { border-color: var(--accent-cyan); }
+
+        /* Estadísticas en Vivo Admin */
+        .stats-preview-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px;
+        }
+        .stat-box-admin {
+            background: #07090e; border: 1px solid var(--border-color); border-radius: 10px;
+            padding: 15px; text-align: center;
+        }
+        .stat-box-admin span { display: block; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: bold; margin-bottom: 5px; }
+        .stat-box-admin strong { color: var(--accent-cyan); font-size: 1.3rem; }
+
+        .admin-buttons-row {
+            display: flex; gap: 15px;
+        }
+        @media(max-width: 600px) { .admin-buttons-row { flex-direction: column; } }
     </style>
 </head>
 <body>
 
     <div class="container">
-        
         <header>
-            <h1>⚡ Panel de Administración ⚡</h1>
-            <a href="index.html" target="_blank" style="color: var(--accent-cyan); text-decoration: none; font-weight: bold; font-size: 0.9rem;">Ver Página Pública ↗</a>
+            <h1>⚙️ Panel de Control</h1>
+            <a href="index.html" class="btn-regresar">Ver Página Principal →</a>
         </header>
 
-        <!-- Control de Estado de las Votaciones -->
-        <div class="admin-card">
-            <h2>⚙️ Estado del Torneo</h2>
-            <div class="status-control">
-                <div class="status-info">
-                    <p>Estado actual de las votaciones:</p>
-                    <span id="statusText" style="color: var(--accent-green);">Activas</span>
+        <!-- Control de Estado de Votación -->
+        <div class="status-box" id="statusBox">
+            <span class="status-text" id="statusText">Estado: Verificando...</span>
+            <button class="btn-toggle-vote" onclick="toggleVotacionEstado()">Cambiar Estado</button>
+        </div>
+
+        <div class="admin-grid">
+            <!-- Configuración de Clips y Enlaces -->
+            <div class="card">
+                <h2>🎬 Enlaces de Clips y Discord</h2>
+                <div class="form-group">
+                    <label>Enlace Iframe Clip 1</label>
+                    <input type="text" id="input-clip1" placeholder="Ej: https://www.youtube.com/embed/...">
                 </div>
-                <button class="btn-toggle-status active" id="toggleStatusBtn" onclick="cambiarEstadoVotacion()">Cerrar Votaciones</button>
+                <div class="form-group">
+                    <label>Enlace Iframe Clip 2</label>
+                    <input type="text" id="input-clip2" placeholder="Ej: https://www.youtube.com/embed/...">
+                </div>
+                <div class="form-group">
+                    <label>Enlace Iframe Clip 3</label>
+                    <input type="text" id="input-clip3" placeholder="Ej: https://www.youtube.com/embed/...">
+                </div>
+                <div class="form-group">
+                    <label>Enlace Iframe Clip 4</label>
+                    <input type="text" id="input-clip4" placeholder="Ej: https://www.youtube.com/embed/...">
+                </div>
+                <div class="form-group">
+                    <label>Enlace del Servidor de Discord</label>
+                    <input type="text" id="input-discord" placeholder="Ej: https://discord.gg/tu-servidor">
+                </div>
+                <button class="btn-action" onclick="guardarClipsYDiscord()">Guardar Cambios de Enlaces</button>
+            </div>
+
+            <!-- Configuración del Salón de la Fama -->
+            <div class="card">
+                <h2>🏆 Salón de la Fama (Dinámico)</h2>
+                <div class="form-group">
+                    <label>Título / Temporada</label>
+                    <input type="text" id="input-salon-titulo" placeholder="Ej: Torneo Relámpago - Temporada 1">
+                </div>
+                <div class="form-group">
+                    <label>Descripción / Ganadores</label>
+                    <textarea id="input-salon-texto" placeholder="Escribe aquí los campeones o la reseña histórica..."></textarea>
+                </div>
+                <button class="btn-action" onclick="guardarSalonFama()">Actualizar Salón de la Fama</button>
             </div>
         </div>
 
-        <!-- Configuración de los Enlaces de los Clips -->
-        <div class="admin-card">
-            <h2>🎬 Configuración de los 4 Clips</h2>
-            <div class="clips-form-grid">
-                <div class="input-group">
-                    <label>Enlace Clip 1</label>
-                    <input type="text" class="input-field" id="input-clip1" placeholder="Ej: https://www.youtube.com/embed/...">
+        <!-- Panel de Votaciones y Exportación -->
+        <div class="card">
+            <h2>📊 Resultados en Vivo y Exportación</h2>
+            <div class="stats-preview-grid">
+                <div class="stat-box-admin">
+                    <span>Clip 1 Votos</span>
+                    <strong id="admin-votos-clip1">0</strong>
                 </div>
-                <div class="input-group">
-                    <label>Enlace Clip 2</label>
-                    <input type="text" class="input-field" id="input-clip2" placeholder="Ej: https://www.youtube.com/embed/...">
+                <div class="stat-box-admin">
+                    <span>Clip 2 Votos</span>
+                    <strong id="admin-votos-clip2">0</strong>
                 </div>
-                <div class="input-group">
-                    <label>Enlace Clip 3</label>
-                    <input type="text" class="input-field" id="input-clip3" placeholder="Ej: https://www.youtube.com/embed/...">
+                <div class="stat-box-admin">
+                    <span>Clip 3 Votos</span>
+                    <strong id="admin-votos-clip3">0</strong>
                 </div>
-                <div class="input-group">
-                    <label>Enlace Clip 4</label>
-                    <input type="text" class="input-field" id="input-clip4" placeholder="Ej: https://www.youtube.com/embed/...">
+                <div class="stat-box-admin">
+                    <span>Clip 4 Votos</span>
+                    <strong id="admin-votos-clip4">0</strong>
+                </div>
+                <div class="stat-box-admin">
+                    <span>Likes Totales</span>
+                    <strong id="admin-likes">0</strong>
+                </div>
+                <div class="stat-box-admin">
+                    <span>Compartidos</span>
+                    <strong id="admin-shares">0</strong>
                 </div>
             </div>
-            <button class="btn-save" onclick="guardarClips()">Guardar Cambios de Clips</button>
-        </div>
 
-        <!-- Resultados y Estadísticas en Vivo -->
-        <div class="admin-card">
-            <h2>📊 Resultados y Estadísticas en Vivo</h2>
-            <div class="stats-grid" style="margin-bottom: 20px;">
-                <div class="stat-box">
-                    <div class="stat-title">Clip 1 Votos</div>
-                    <div class="stat-value" id="stat-votos-clip1">0 (0%)</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-title">Clip 2 Votos</div>
-                    <div class="stat-value" id="stat-votos-clip2">0 (0%)</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-title">Clip 3 Votos</div>
-                    <div class="stat-value" id="stat-votos-clip3">0 (0%)</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-title">Clip 4 Votos</div>
-                    <div class="stat-value" id="stat-votos-clip4">0 (0%)</div>
-                </div>
-            </div>
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-title">❤️ Total Likes</div>
-                    <div class="stat-value" id="stat-likes">0</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-title">🔗 Veces Compartido</div>
-                    <div class="stat-value" id="stat-shares">0</div>
-                </div>
+            <div class="admin-buttons-row">
+                <button class="btn-action btn-success" onclick="exportarACSV()">📥 Exportar Votos y Comentarios (CSV / Google Sheets)</button>
+                <button class="btn-action btn-danger" onclick="reiniciarVotos()">🔄 Reiniciar Todos los Votos a 0</button>
             </div>
         </div>
-
-        <!-- Moderación de Comentarios -->
-        <div class="admin-card">
-            <h2>💬 Comentarios Recientes del Público</h2>
-            <div class="comments-container" id="commentsContainer">
-                <span style="color: var(--text-muted); font-size: 0.9rem;">Cargando comentarios...</span>
-            </div>
-        </div>
-
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
-        // PEGA AQUÍ TU CONFIGURACIÓN DE FIREBASE (La misma que usaste en index)
         const firebaseConfig = {
-  apiKey: "AIzaSyAHPsKLBAJCu-N5SVS7mTdVHF-5AAVIGy4",
-  authDomain: "blood-strike-torneo.firebaseapp.com",
-  projectId: "blood-strike-torneo",
-  storageBucket: "blood-strike-torneo.firebasestorage.app",
-  messagingSenderId: "756331439350",
-  appId: "1:756331439350:web:06fbe26b312071d94ef8d7",
-  measurementId: "G-QWJBREPW9S"
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_PROJECT.firebaseapp.com",
+            databaseURL: "https://TU_PROJECT-default-rtdb.firebaseio.com",
+            projectId: "TU_PROJECT",
+            storageBucket: "TU_PROJECT.appspot.com",
+            messagingSenderId: "TU_SENDER_ID",
+            appId: "TU_APP_ID"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let estadoVotacionActual = true;
+        let estadoActualVotacion = true;
+        let datosCompletosGlobales = {};
 
-        // Sincronizar datos de configuración general y clips
-        onValue(ref(db, 'config'), (snapshot) => {
-            const config = snapshot.val() || {};
-            estadoVotacionActual = config.votacion_activa !== false;
+        // Escuchar configuración y datos en tiempo real para el panel
+        onValue(ref(db), (snapshot) => {
+            const data = snapshot.val() || {};
+            datosCompletosGlobales = data; // Guardamos todo para la exportación
+
+            const config = data.config || {};
+            document.getElementById('input-clip1').value = config.clip1 || '';
+            document.getElementById('input-clip2').value = config.clip2 || '';
+            document.getElementById('input-clip3').value = config.clip3 || '';
+            document.getElementById('input-clip4').value = config.clip4 || '';
+            document.getElementById('input-discord').value = config.discord_link || '';
             
-            const statusText = document.getElementById('statusText');
-            const toggleBtn = document.getElementById('toggleStatusBtn');
+            document.getElementById('input-salon-titulo').value = config.salon_titulo || '';
+            document.getElementById('input-salon-texto').value = config.salon_texto || '';
 
-            if(estadoVotacionActual) {
-                statusText.innerText = "Activas (Público puede votar)";
-                statusText.style.color = "var(--accent-green)";
-                toggleBtn.innerText = "Cerrar Votaciones";
-                toggleBtn.className = "btn-toggle-status active";
-            } else {
-                statusText.innerText = "Cerradas / Bloqueadas";
-                statusText.style.color = "var(--accent-pink)";
-                toggleBtn.innerText = "Abrir Votaciones";
-                toggleBtn.className = "btn-toggle-status paused";
-            }
+            estadoActualVotacion = config.votacion_activa !== false;
+            actualizarInterfazEstado();
 
-            for(let i=1; i<=4; i++) {
-                const input = document.getElementById(`input-clip${i}`);
-                if(input && config[`clip${i}`]) {
-                    input.value = config[`clip${i}`];
-                }
-            }
+            // Actualizar contadores visuales en el panel
+            const votos = data.votos || { clip1: 0, clip2: 0, clip3: 0, clip4: 0 };
+            document.getElementById('admin-votos-clip1').innerText = votos.clip1 || 0;
+            document.getElementById('admin-votos-clip2').innerText = votos.clip2 || 0;
+            document.getElementById('admin-votos-clip3').innerText = votos.clip3 || 0;
+            document.getElementById('admin-votos-clip4').innerText = votos.clip4 || 0;
+
+            const stats = data.estadisticas || { likes: 0, compartidos: 0 };
+            document.getElementById('admin-likes').innerText = stats.likes || 0;
+            document.getElementById('admin-shares').innerText = stats.compartidos || 0;
         });
 
-        // Cambiar Estado de Votación
-        window.cambiarEstadoVotacion = function() {
-            const nuevoEstado = !estadoVotacionActual;
-            set(ref(db, 'config/votacion_activa'), nuevoEstado).then(() => {
-                alert(nuevoEstado ? "¡Votaciones abiertas con éxito!" : "¡Votaciones cerradas temporalmente!");
+        function actualizarInterfazEstado() {
+            const box = document.getElementById('statusBox');
+            const text = document.getElementById('statusText');
+            if(estadoActualVotacion) {
+                box.classList.remove('closed');
+                text.innerHTML = "🟢 Estado actual: Votaciones ABIERTAS al público";
+            } else {
+                box.classList.add('closed');
+                text.innerHTML = "🔴 Estado actual: Votaciones CERRADAS (Pausadas)";
+            }
+        }
+
+        window.toggleVotacionEstado = function() {
+            const nuevoEstado = !estadoActualVotacion;
+            update(ref(db, 'config'), { votacion_activa: nuevoEstado }).then(() => {
+                alert("¡Estado de votación actualizado!");
             });
         };
 
-        // Guardar los enlaces de los clips
-        window.guardarClips = function() {
-            const dataToUpdate = {
+        window.guardarClipsYDiscord = function() {
+            const updates = {
                 clip1: document.getElementById('input-clip1').value.trim(),
                 clip2: document.getElementById('input-clip2').value.trim(),
                 clip3: document.getElementById('input-clip3').value.trim(),
                 clip4: document.getElementById('input-clip4').value.trim(),
-                votacion_activa: estadoVotacionActual
+                discord_link: document.getElementById('input-discord').value.trim()
             };
 
-            set(ref(db, 'config'), dataToUpdate).then(() => {
-                alert("¡Enlaces de los clips actualizados correctamente!");
-            }).catch((error) => {
-                alert("Error al guardar: " + error.message);
+            update(ref(db, 'config'), updates).then(() => {
+                alert("¡Clips y enlace de Discord guardados correctamente!");
             });
         };
 
-        // Sincronizar Estadísticas y Votos
-        onValue(ref(db, 'votos'), (snapshot) => {
-            const data = snapshot.val() || { clip1: 0, clip2: 0, clip3: 0, clip4: 0 };
-            const total = (data.clip1||0) + (data.clip2||0) + (data.clip3||0) + (data.clip4||0);
+        window.guardarSalonFama = function() {
+            const updates = {
+                salon_titulo: document.getElementById('input-salon-titulo').value.trim(),
+                salon_texto: document.getElementById('input-salon-texto').value.trim()
+            };
 
-            ['clip1', 'clip2', 'clip3', 'clip4'].forEach((clip, index) => {
-                const num = index + 1;
-                const votos = data[clip] || 0;
-                const porcentaje = total > 0 ? Math.round((votos / total) * 100) : 0;
-                const statEl = document.getElementById(`stat-votos-clip${num}`);
-                if(statEl) {
-                    statEl.innerText = `${votos} (${porcentaje}%)`;
+            update(ref(db, 'config'), updates).then(() => {
+                alert("¡Salón de la Fama actualizado con éxito!");
+            });
+        };
+
+        window.reiniciarVotos = function() {
+            if(confirm("¿Estás seguro de poner todos los votos en 0? Esta acción no se puede deshacer.")) {
+                set(ref(db, 'votos'), {
+                    clip1: 0,
+                    clip2: 0,
+                    clip3: 0,
+                    clip4: 0
+                }).then(() => {
+                    alert("¡Los contadores de votos han sido reiniciados!");
+                });
+            }
+        };
+
+        // Función para exportar los votos, estadísticas y comentarios en formato CSV (Compatible con Google Sheets y Excel)
+        window.exportarACSV = function() {
+            const votos = datosCompletosGlobales.votos || { clip1: 0, clip2: 0, clip3: 0, clip4: 0 };
+            const stats = datosCompletosGlobales.estadisticas || { likes: 0, compartidos: 0 };
+            const comentarios = datosCompletosGlobales.comentarios || {};
+
+            let csvContent = "\uFEFF"; // BOM para correcta lectura de tildes y caracteres especiales en Excel/Sheets
+            csvContent += "REPORTE DE RESULTADOS Y COMENTARIOS - BLOOD STRIKE LATAM\n\n";
+            
+            // Sección de Votos y Estadísticas
+            csvContent += "CATEGORIA,VALOR\n";
+            csvContent += `Votos Clip 1,${votos.clip1 || 0}\n`;
+            csvContent += `Votos Clip 2,${votos.clip2 || 0}\n`;
+            csvContent += `Votos Clip 3,${votos.clip3 || 0}\n`;
+            csvContent += `Votos Clip 4,${votos.clip4 || 0}\n`;
+            csvContent += `Total Likes,${stats.likes || 0}\n`;
+            csvContent += `Total Veces Compartido,${stats.compartidos || 0}\n\n`;
+
+            // Sección de Comentarios por Clip
+            csvContent += "COMENTARIOS POR CLIP\n";
+            csvContent += "CLIP,HORA,COMENTARIO\n";
+
+            ['clip1', 'clip2', 'clip3', 'clip4'].forEach(clipKey => {
+                const comsClip = comentarios[clipKey];
+                if(comsClip) {
+                    Object.values(comsClip).forEach(item => {
+                        // Limpiamos comillas dobles y saltos de línea para que no rompan el CSV
+                        const textoLimpio = (item.comentario || "").replace(/"/g, '""').replace(/\n/g, ' ');
+                        const horaLimpia = item.fecha || "N/A";
+                        csvContent += `"${clipKey.toUpperCase()}","${horaLimpia}","${textoLimpio}"\n`;
+                    });
                 }
             });
-        });
 
-        onValue(ref(db, 'estadisticas'), (snapshot) => {
-            const stats = snapshot.val() || { likes: 0, compartidos: 0 };
-            document.getElementById('stat-likes').innerText = stats.likes || 0;
-            document.getElementById('stat-shares').innerText = stats.compartidos || 0;
-        });
-
-        // Sincronizar Comentarios en Vivo
-        onValue(ref(db, 'comentarios'), (snapshot) => {
-            const commentsContainer = document.getElementById('commentsContainer');
-            const data = snapshot.val();
+            // Crear archivo descargable
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Reporte_BloodStrike_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
             
-            if (!data) {
-                commentsContainer.innerHTML = `<span style="color: var(--text-muted); font-size: 0.9rem;">No hay comentarios todavía.</span>`;
-                return;
-            }
-
-            let htmlContent = '';
-            // Recorrer clips y sus comentarios
-            Object.keys(data).forEach(clipKey => {
-                const clipComments = data[clipKey];
-                Object.keys(clipComments).forEach(commentId => {
-                    const c = clipComments[commentId];
-                    htmlContent += `
-                        <div class="comment-item">
-                            <div>
-                                <div class="comment-text"><strong>[${clipKey.toUpperCase()}]</strong> ${c.comentario}</div>
-                                <div class="comment-meta">Enviado a las ${c.fecha}</div>
-                            </div>
-                        </div>`;
-                });
-            });
-
-            commentsContainer.innerHTML = htmlContent || `<span style="color: var(--text-muted); font-size: 0.9rem;">No hay comentarios todavía.</span>`;
-        });
+            alert("¡Reporte exportado con éxito! Puedes abrir el archivo descargado directamente en Google Sheets o Excel.");
+        };
     </script>
 </body>
 </html>
